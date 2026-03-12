@@ -431,12 +431,39 @@ function saveWords(words) {
 
 // ── TTS ─────────────────────────────────────────────────
 function speakEnglish(text) {
+  // Try Google Translate TTS first (good quality, works on HTTPS)
+  const url = 'https://translate.googleapis.com/translate_tts'
+    + '?ie=UTF-8&client=tw-ob&tl=en&q='
+    + encodeURIComponent(text);
+  const audio = new Audio(url);
+  audio.onerror = () => _speakWithSynthesis(text, 'en-US');
+  audio.play().catch(() => _speakWithSynthesis(text, 'en-US'));
+}
+
+function _speakWithSynthesis(text, lang) {
   if (!window.speechSynthesis) return;
   speechSynthesis.cancel();
   const utt = new SpeechSynthesisUtterance(text);
-  utt.lang = 'en-US';
+  utt.lang = lang || 'en-US';
   utt.rate = 0.85;
-  speechSynthesis.speak(utt);
+
+  const doSpeak = () => {
+    const voices = speechSynthesis.getVoices();
+    const langPrefix = (lang || 'en-US').split('-')[0];
+    const match = voices.filter(v => v.lang.startsWith(langPrefix));
+    // prefer online / neural voices (Windows 10/11, macOS)
+    const best = match.find(v => /online|natural|neural|aria|guy/i.test(v.name))
+      || match.find(v => v.lang === (lang || 'en-US'))
+      || match[0];
+    if (best) utt.voice = best;
+    speechSynthesis.speak(utt);
+  };
+
+  if (speechSynthesis.getVoices().length === 0) {
+    speechSynthesis.addEventListener('voiceschanged', doSpeak, { once: true });
+  } else {
+    doSpeak();
+  }
 }
 
 // ── Tabs ────────────────────────────────────────────────

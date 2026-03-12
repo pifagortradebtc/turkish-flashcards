@@ -1143,31 +1143,41 @@ try {
 } catch (e) { console.warn('migrate error', e); }
 
 // ── TTS ────────────────────────────────────────────────
-function _speakWithSynthesis(text) {
+function _speakWithSynthesis(text, lang) {
   if (!window.speechSynthesis) return;
   speechSynthesis.cancel();
   const utt = new SpeechSynthesisUtterance(text);
-  utt.lang = 'tr-TR';
-  utt.rate = 0.9;
-  speechSynthesis.speak(utt);
+  utt.lang = lang || 'tr-TR';
+  utt.rate = 0.85;
+
+  const doSpeak = () => {
+    const voices = speechSynthesis.getVoices();
+    const langPrefix = (lang || 'tr-TR').split('-')[0];
+    const match = voices.filter(v => v.lang.startsWith(langPrefix));
+    // prefer online / neural voices (Windows 10/11, macOS)
+    const best = match.find(v => /online|natural|neural|aria|guy/i.test(v.name))
+      || match.find(v => v.lang === (lang || 'tr-TR'))
+      || match[0];
+    if (best) utt.voice = best;
+    speechSynthesis.speak(utt);
+  };
+
+  if (speechSynthesis.getVoices().length === 0) {
+    speechSynthesis.addEventListener('voiceschanged', doSpeak, { once: true });
+  } else {
+    doSpeak();
+  }
 }
 
 function speakTurkish(text) {
-  // iOS Safari blocks cross-origin audio — use native Web Speech API instead
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-
-  if (isIOS) {
-    _speakWithSynthesis(text);
-    return;
-  }
-
+  // Try Google Translate TTS first (good quality, works on HTTPS)
+  // Falls back to Web Speech API if blocked (e.g. local file://)
   const url = 'https://translate.googleapis.com/translate_tts'
-    + '?ie=UTF-8&client=gtx&tl=tr&ttsspeed=0.8&q='
+    + '?ie=UTF-8&client=tw-ob&tl=tr&q='
     + encodeURIComponent(text);
   const audio = new Audio(url);
-  audio.onerror = () => _speakWithSynthesis(text);
-  audio.play().catch(() => _speakWithSynthesis(text));
+  audio.onerror = () => _speakWithSynthesis(text, 'tr-TR');
+  audio.play().catch(() => _speakWithSynthesis(text, 'tr-TR'));
 }
 
 // ── Tabs ───────────────────────────────────────────────
