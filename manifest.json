@@ -1,0 +1,23 @@
+{
+  "name": "Мои Карточки",
+  "short_name": "Карточки",
+  "description": "Турецкие и английские флэшкарточки",
+  "start_url": "/turkish-flashcards/",
+  "scope": "/turkish-flashcards/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f0e8",
+  "theme_color": "#0a2540",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/pifagortradebtc/turkish-flashcards/main/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/pifagortradebtc/turkish-flashcards/main/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
