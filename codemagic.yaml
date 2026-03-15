@@ -1,0 +1,48 @@
+# Codemagic — сборка iOS без Mac
+# Документация: https://docs.codemagic.io/yaml-quick-start/building-an-ionic-app/
+
+workflows:
+  ios-workflow:
+    name: Kelime Kartları iOS
+    max_build_duration: 120
+    instance_type: mac_mini_m2
+
+    environment:
+      node: v20
+      vars:
+        XCODE_PROJECT: "App.xcodeproj"
+        XCODE_SCHEME: "App"
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.kelime.kartlari
+
+    scripts:
+      - name: Установка зависимостей
+        script: npm ci
+
+      - name: Сборка веб-ресурсов и синхронизация
+        script: npm run sync
+
+      - name: Настройка code signing
+        script: |
+          cd ios/App
+          xcode-project use-profiles
+
+      - name: Сборка IPA
+        script: |
+          cd ios/App
+          xcode-project build-ipa \
+            --project "$XCODE_PROJECT" \
+            --scheme "$XCODE_SCHEME"
+
+    artifacts:
+      - ios/App/build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+
+    # Раскомментируйте после настройки App Store Connect API key в Codemagic:
+    # integrations:
+    #   app_store_connect: App Store Connect API key
+    # publishing:
+    #   app_store_connect:
+    #     auth: integration
+    #     submit_to_testflight: true

@@ -1,0 +1,1698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spanish Flashcards</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Spanish" />
+  <meta name="theme-color" content="#6b5b4f" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="ads-bundle.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --dark:    #5c4f45;
+      --dark2:   #6b5b4f;
+      --accent:  #b85c4a;
+      --accent-dk:#9a4a3a;
+      --cream:   #f8f6f4;
+      --white:   #ffffff;
+      --gray50:  #f5f2ef;
+      --gray100: #e8e4df;
+      --gray200: #d4cfc8;
+      --gray400: #8b7a6e;
+      --gray600: #6b5b4f;
+      --gray700: #5c4f45;
+      --gray900: #3d342d;
+      --green:   #059669;
+      --green-lt:#d1fae5;
+      --amber:   #b8860b;
+      --indigo:  #6b5b4f;
+      --teal:    #7a6a5e;
+      --shadow:  0 4px 28px rgba(92,79,69,.1);
+      --radius:  16px;
+    }
+
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--cream); color: var(--gray900); min-height: 100vh; overflow-x: hidden; }
+
+    /* ── Header ─────────────────────────────────────── */
+    header {
+      background: linear-gradient(145deg, #5c4f45 0%, #6b5b4f 45%, #7a6a5e 100%);
+      color: #fff; padding: 22px 24px 0;
+      box-shadow: 0 4px 24px rgba(92,79,69,.25);
+      position: relative; overflow: hidden;
+    }
+    header::before {
+      content: ''; position: absolute; inset: 0;
+      background-image:
+        repeating-linear-gradient(45deg,  rgba(255,255,255,.03) 0, rgba(255,255,255,.03) 1px, transparent 0, transparent 22px),
+        repeating-linear-gradient(135deg, rgba(255,255,255,.03) 0, rgba(255,255,255,.03) 1px, transparent 0, transparent 22px);
+      pointer-events: none;
+    }
+    header::after {
+      content: 'ES'; position: absolute; right: 20px; top: 50%;
+      transform: translateY(-60%); font-size: 3.2rem; font-weight: 800; letter-spacing: .15em; opacity: .15;
+      pointer-events: none; user-select: none;
+    }
+    .header-top { display: flex; align-items: center; gap: 12px; max-width: 720px; margin: 0 auto; position: relative; }
+    .header-top h1 { font-size: 1.7rem; font-weight: 800; line-height: 1.2; letter-spacing: -.01em; text-shadow: 0 1px 8px rgba(0,0,0,.25); flex: 1; }
+    .header-top h1 span { display: block; font-size: .82rem; font-weight: 400; opacity: .6; letter-spacing: .01em; margin-top: 2px; }
+    .lang-switch-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(255,255,255,.13); border: 1.5px solid rgba(255,255,255,.28);
+      border-radius: 10px; color: #fff; font-size: .82rem; font-weight: 700;
+      font-family: inherit; padding: 7px 13px; cursor: pointer;
+      text-decoration: none; transition: background .15s, border-color .15s;
+      flex-shrink: 0; letter-spacing: .02em;
+    }
+    .lang-switch-btn:hover { background: rgba(255,255,255,.22); border-color: rgba(255,255,255,.5); }
+    .lang-switch-group { display: flex; gap: 4px; flex-shrink: 0; }
+    .lang-switch-btn.active { background: rgba(255,255,255,.35); border-color: rgba(255,255,255,.6); cursor: default; pointer-events: none; }
+
+    nav { display: flex; gap: 4px; max-width: 720px; margin: 18px auto 0; position: relative; }
+    nav button { background: transparent; border: none; color: rgba(255,255,255,.55); font-size: .95rem; font-weight: 600; padding: 10px 22px; border-radius: 10px 10px 0 0; cursor: pointer; transition: background .15s, color .15s; }
+    nav button:hover { background: rgba(255,255,255,.10); color: rgba(255,255,255,.88); }
+    nav button.active { background: var(--cream); color: var(--dark); font-weight: 700; }
+
+    /* ── Main ────────────────────────────────────────── */
+    main { max-width: 720px; margin: 0 auto; padding: 28px 16px 60px; }
+    .tab { display: none; }
+    .tab.active { display: block; }
+
+    /* ── Panel ───────────────────────────────────────── */
+    .panel { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; margin-bottom: 20px; border: 1px solid rgba(92,79,69,.06); }
+    .panel-title { font-size: 1rem; font-weight: 700; color: var(--dark); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+    /* ── Form ────────────────────────────────────────── */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-size: .82rem; font-weight: 600; color: var(--gray600); letter-spacing: .03em; }
+    .field input, .field textarea, .field select { border: 1.5px solid var(--gray200); border-radius: 10px; padding: 10px 14px; font-size: .95rem; font-family: inherit; color: var(--gray900); transition: border-color .15s; background: var(--gray50); }
+    .field input:focus, .field textarea:focus, .field select:focus { outline: none; border-color: var(--indigo); background: var(--white); box-shadow: 0 0 0 3px rgba(107,91,79,.12); }
+    .field select { cursor: pointer; }
+    .field.full { grid-column: 1 / -1; }
+    .field textarea { resize: vertical; min-height: 60px; }
+
+    .btn { display: inline-flex; align-items: center; gap: 7px; border: none; border-radius: 10px; font-size: .93rem; font-weight: 600; font-family: inherit; padding: 11px 22px; cursor: pointer; transition: filter .15s, transform .1s; }
+    .btn:hover { filter: brightness(.9); }
+    .btn:active { transform: scale(.97); }
+    .btn-primary { background: linear-gradient(135deg, var(--dark2) 0%, var(--dark) 100%); color: #fff; box-shadow: 0 2px 8px rgba(92,79,69,.2); }
+    .btn-ghost   { background: var(--gray100); color: var(--gray700); }
+    .btn-green   { background: linear-gradient(135deg, #059669 0%, #047857 100%); color: #fff; box-shadow: 0 2px 8px rgba(5,150,105,.25); }
+    .btn-amber   { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #fff; box-shadow: 0 2px 8px rgba(217,119,6,.25); }
+    .btn-indigo  { background: linear-gradient(135deg, var(--indigo) 0%, var(--teal) 100%); color: #fff; box-shadow: 0 2px 8px rgba(92,79,69,.2); }
+    .btn-icon { padding: 8px; border-radius: 8px; background: none; border: none; cursor: pointer; font-size: 1rem; color: var(--gray400); transition: color .15s, background .15s; }
+    .btn-icon:hover { color: var(--accent); background: var(--gray100); }
+
+    .form-actions { display: flex; gap: 10px; justify-content: flex-end; align-items: center; margin-top: 16px; }
+    .msg { font-size: .85rem; padding: 8px 14px; border-radius: 8px; display: none; }
+    .msg.show { display: block; }
+    .msg.success { background: var(--green-lt); color: var(--green); }
+    .msg.error   { background: #fee2e2; color: var(--accent-dk); }
+
+    /* ── Word List ───────────────────────────────────── */
+    .search-bar { display: flex; align-items: center; gap: 10px; background: var(--gray50); border: 1.5px solid var(--gray200); border-radius: 10px; padding: 0 14px; margin-bottom: 16px; }
+    .search-bar input { border: none; background: transparent; padding: 10px 0; font-size: .95rem; width: 100%; font-family: inherit; }
+    .search-bar input:focus { outline: none; }
+    .search-bar span { color: var(--gray400); }
+    .word-count { font-size: .82rem; color: var(--gray400); margin-bottom: 14px; }
+    .word-list { display: flex; flex-direction: column; gap: 8px; }
+    .word-item { display: flex; align-items: center; gap: 12px; background: var(--gray50); border: 1.5px solid var(--gray200); border-radius: 12px; padding: 14px 16px; transition: border-color .15s, box-shadow .15s; }
+    .word-item:hover { border-color: var(--indigo); box-shadow: 0 2px 10px rgba(92,79,69,.1); }
+    .word-item-main { flex: 1; min-width: 0; }
+    .word-tr { font-size: 1rem; font-weight: 700; color: var(--gray900); display: flex; align-items: center; gap: 8px; }
+    .word-en { font-size: .88rem; color: var(--gray600); margin-top: 2px; }
+    .word-notes { font-size: .8rem; color: var(--gray400); font-style: italic; margin-top: 3px; }
+    .word-stats { display: flex; gap: 8px; flex-shrink: 0; }
+    .stat-pill { font-size: .75rem; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
+    .stat-correct   { background: var(--green-lt); color: var(--green); }
+    .stat-incorrect { background: #fee2e2; color: var(--accent-dk); }
+    .badge-new { font-size: .65rem; font-weight: 800; letter-spacing: .06em; padding: 2px 7px; border-radius: 20px; background: #fef3c7; color: #92400e; vertical-align: middle; }
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--gray400); }
+    .empty-state .emoji { font-size: 3rem; margin-bottom: 12px; }
+    .empty-state p { font-size: .95rem; }
+
+    /* ── Quiz mode toggle ────────────────────────────── */
+    .quiz-mode-toggle { display: flex; background: var(--gray100); border-radius: 12px; padding: 4px; margin-bottom: 20px; gap: 4px; }
+    .quiz-mode-btn { flex: 1; border: none; background: transparent; border-radius: 9px; padding: 10px 16px; font-size: .9rem; font-weight: 600; font-family: inherit; color: var(--gray600); cursor: pointer; transition: background .18s, color .18s, box-shadow .18s; display: flex; align-items: center; justify-content: center; gap: 7px; }
+    .quiz-mode-btn:hover { color: var(--gray900); }
+    .quiz-mode-btn.active { background: linear-gradient(135deg, var(--dark2) 0%, var(--teal) 100%); color: #fff; box-shadow: 0 2px 10px rgba(92,79,69,.18); }
+    .quiz-mode-btn .badge-count { background: rgba(255,255,255,.22); color: inherit; font-size: .72rem; padding: 1px 7px; border-radius: 99px; font-weight: 700; }
+    .quiz-mode-btn:not(.active) .badge-count { background: var(--gray200); color: var(--gray600); }
+
+    /* ── Quiz settings ───────────────────────────────── */
+    .quiz-settings { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    .quiz-setting-row { display: flex; align-items: center; gap: 10px; }
+    .quiz-setting-row label { font-size: .82rem; font-weight: 600; color: var(--gray600); width: 100px; flex-shrink: 0; }
+    .quiz-settings select { flex: 1; border: 1.5px solid var(--gray200); border-radius: 8px; padding: 8px 12px; font-size: .88rem; font-family: inherit; background: var(--white); color: var(--gray900); cursor: pointer; }
+    .quiz-settings select:focus { outline: none; border-color: var(--dark2); }
+
+    /* ── Session bar ─────────────────────────────────── */
+    .session-bar { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+    .session-stat { display: flex; align-items: center; gap: 6px; font-size: .85rem; font-weight: 600; color: var(--gray600); }
+    .session-stat .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-dark  { background: var(--indigo); }
+    .dot-green { background: var(--green); }
+    .tts-toggle-btn { background: none; border: 1.5px solid var(--gray200); border-radius: 8px; padding: 5px 12px; font-size: .8rem; font-weight: 600; font-family: inherit; cursor: pointer; color: var(--gray400); transition: background .15s, border-color .15s, color .15s; display: flex; align-items: center; gap: 5px; margin-left: auto; flex-shrink: 0; }
+    .tts-toggle-btn.active { background: rgba(107,91,79,.08); border-color: var(--indigo); color: var(--indigo); }
+    .tts-toggle-btn:hover { border-color: var(--indigo); color: var(--indigo); }
+
+    /* ── Flip card ───────────────────────────────────── */
+    .card-scene { position: relative; perspective: 1000px; height: 280px; margin-bottom: 20px; cursor: pointer; overflow: hidden; }
+    .card-flip { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform .55s cubic-bezier(.4,0,.2,1); }
+    .card-flip.flipped { transform: rotateY(180deg); }
+    .card-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: var(--radius); box-shadow: var(--shadow); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px; text-align: center; overflow: hidden; }
+    .card-front { background: linear-gradient(160deg, #ffffff 60%, #f5f2ef 100%); border: 2px solid rgba(107,91,79,.15); }
+    .card-back  { background: linear-gradient(145deg, #5c4f45 0%, #6b5b4f 50%, #7a6a5e 100%); transform: rotateY(180deg); color: #fff; }
+    .card-label { font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; opacity: .45; margin-bottom: 12px; }
+    .card-word  { font-size: 2.2rem; font-weight: 800; line-height: 1.15; margin-bottom: 10px; max-width: 100%; overflow-wrap: break-word; word-break: break-word; padding: 0 8px; }
+    .card-hint  { font-size: .88rem; opacity: .55; font-style: italic; }
+    .card-tap   { font-size: .8rem; color: var(--gray400); margin-top: 16px; display: flex; align-items: center; gap: 5px; }
+    .card-speaker-btn { position: absolute; top: 12px; right: 12px; width: 44px; height: 44px; border-radius: 50%; border: none; background: rgba(0,0,0,.08); color: var(--gray600); font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s, transform .1s; z-index: 10; }
+    .card-speaker-btn:hover { background: rgba(0,0,0,.12); }
+    .card-speaker-btn:active { transform: scale(.95); }
+    .quiz-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .quiz-actions .btn { min-width: 140px; justify-content: center; font-size: 1rem; padding: 14px 28px; }
+
+    /* ── Quiz done screen ────────────────────────────── */
+    .quiz-done { text-align: center; padding: 32px 20px; }
+    .quiz-done .big { font-size: 3.5rem; margin-bottom: 12px; }
+    .quiz-done h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: 8px; }
+    .quiz-done p  { color: var(--gray600); margin-bottom: 20px; }
+    .score-row { display: flex; justify-content: center; gap: 24px; margin-bottom: 24px; }
+    .score-box { text-align: center; }
+    .score-num { font-size: 2rem; font-weight: 800; line-height: 1; }
+    .score-lbl { font-size: .8rem; color: var(--gray400); margin-top: 4px; font-weight: 600; }
+    .score-green  { color: var(--green); }
+    .score-amber  { color: var(--amber); }
+    .score-indigo { color: var(--teal); }
+    .progress-bar-wrap { background: var(--gray200); border-radius: 99px; height: 6px; margin-bottom: 20px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--dark2) 0%, var(--teal) 100%); border-radius: 99px; transition: width .3s; }
+    .card-counter { text-align: center; font-size: .85rem; color: var(--gray400); font-weight: 600; margin-bottom: 10px; }
+    .quiz-no-words { text-align: center; padding: 48px 20px; color: var(--gray400); }
+    .quiz-no-words .emoji { font-size: 3rem; margin-bottom: 12px; }
+
+    /* ── Category filter ─────────────────────────────── */
+    .cat-select-wrap { margin-bottom: 16px; }
+    .cat-select-wrap select { width: 100%; border: 1.5px solid var(--gray200); border-radius: 10px; padding: 10px 14px; font-size: .95rem; font-family: inherit; background: var(--gray50); color: var(--gray900); cursor: pointer; appearance: auto; }
+    .cat-select-wrap select:focus { outline: none; border-color: var(--dark2); background: var(--white); }
+    #quiz-deck-list { max-height: 420px; overflow-y: auto; }
+    .learn-done-banner { text-align: center; padding: 36px 20px; background: linear-gradient(135deg, #f5f2ef 0%, #e8e4df 100%); border: 1.5px solid rgba(107,91,79,.12); border-radius: var(--radius); margin-bottom: 16px; }
+    .learn-done-banner .big { font-size: 2.8rem; margin-bottom: 10px; }
+    .learn-done-banner h2 { font-size: 1.25rem; font-weight: 800; color: var(--teal); margin-bottom: 6px; }
+    .learn-done-banner p { color: #065f46; font-size: .9rem; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <h1>Мои Испанские Карточки<span>🇪🇸 Испанский язык · цель 800 слов</span></h1>
+    <div class="lang-switch-group">
+      <a href="index.html" class="lang-switch-btn">TR</a>
+      <a href="english.html" class="lang-switch-btn">ENG</a>
+    </div>
+  </div>
+  <nav>
+    <button class="active" onclick="switchTab('quiz')">🎯 Учить</button>
+    <button onclick="switchTab('words')">➕ Добавить</button>
+  </nav>
+</header>
+
+<main>
+  <!-- ══ MY WORDS TAB ══════════════════════════════════ -->
+  <div id="tab-words" class="tab">
+    <div class="panel">
+      <div class="panel-title">➕ Новое слово</div>
+      <form id="add-form" onsubmit="addWord(event)">
+        <div class="form-row">
+          <div class="field">
+            <label>СЛОВО (ИСПАНСКИЙ)</label>
+            <input id="inp-tr" type="text" placeholder="e.g. manzana" autocomplete="off" required />
+          </div>
+          <div class="field">
+            <label>ПЕРЕВОД (РУССКИЙ)</label>
+            <input id="inp-en" type="text" placeholder="e.g. яблоко" autocomplete="off" required />
+          </div>
+          <div class="field">
+            <label>КАТЕГОРИЯ</label>
+            <select id="inp-cat">
+              <option value="other">📦 Разное</option>
+              <option value="greeting">🤝 Приветствия</option>
+              <option value="family">👨‍👩‍👧 Семья</option>
+              <option value="profession">💼 Профессии</option>
+              <option value="body">🫀 Части тела</option>
+              <option value="food">🍽️ Еда и напитки</option>
+              <option value="produce">🥦 Овощи и фрукты</option>
+              <option value="animal">🐾 Животные</option>
+              <option value="home">🏠 Дом</option>
+              <option value="clothing">👕 Одежда</option>
+              <option value="color">🎨 Цвета</option>
+              <option value="number">🔢 Числа</option>
+              <option value="time">⏰ Время</option>
+              <option value="transport">🚗 Транспорт</option>
+              <option value="city">🏙️ Город и места</option>
+              <option value="nature">🌿 Природа</option>
+              <option value="pronoun">👤 Местоимения</option>
+              <option value="question">❓ Вопросы</option>
+              <option value="verb">⚡ Глаголы</option>
+              <option value="adjective">📝 Прилагательные</option>
+              <option value="preposition">🔗 Предлоги и союзы</option>
+              <option value="phrase">💬 Фразы</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label>ЗАМЕТКА (примеры, контекст)</label>
+            <textarea id="inp-notes" placeholder="e.g. used in formal speech"></textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          <div id="add-msg" class="msg"></div>
+          <button type="submit" class="btn btn-primary">Добавить слово</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title"><span>📚 Все слова</span></div>
+      <div class="search-bar">
+        <span>🔍</span>
+        <input type="text" id="search-inp" placeholder="Поиск слов…" oninput="renderWordList()" />
+      </div>
+      <div class="cat-select-wrap">
+        <select id="cat-filter" onchange="setCatFilter(this.value)">
+          <option value="">Все категории</option>
+        </select>
+      </div>
+      <div id="word-count" class="word-count"></div>
+      <div id="word-list" class="word-list"></div>
+    </div>
+  </div>
+
+  <!-- ══ QUIZ TAB ══════════════════════════════════════ -->
+  <div id="tab-quiz" class="tab active">
+    <div id="quiz-no-words" class="panel quiz-no-words" style="display:none">
+      <div class="emoji">📝</div>
+      <p>Сначала добавьте слова, затем возвращайтесь!</p>
+    </div>
+    <div id="quiz-area" style="display:none">
+      <div class="panel">
+        <div class="quiz-mode-toggle">
+          <button class="quiz-mode-btn active" id="mode-btn-learn" onclick="setQuizMode('learn')">
+            🌱 Учу <span id="badge-new-count" class="badge-count">0</span>
+          </button>
+          <button class="quiz-mode-btn" id="mode-btn-repeat" onclick="setQuizMode('repeat')">
+            🔁 Все <span id="badge-all-count" class="badge-count">0</span>
+          </button>
+        </div>
+        <div class="quiz-settings">
+          <div class="quiz-setting-row">
+            <label>Направление</label>
+            <select id="quiz-dir" onchange="startQuiz()">
+              <option value="tr-en">Испанский → Русский</option>
+              <option value="en-tr">Русский → Испанский</option>
+              <option value="random">Рандом</option>
+            </select>
+          </div>
+          <div class="quiz-setting-row">
+            <label>Группа</label>
+            <select id="quiz-group" onchange="startQuiz()">
+              <option value="">Все группы</option>
+            </select>
+          </div>
+        </div>
+        <div class="session-bar">
+          <div class="session-stat"><div class="dot dot-dark"></div><span id="stat-total">0 слов</span></div>
+          <div class="session-stat"><div class="dot dot-green"></div><span id="stat-correct">0 верно</span></div>
+        </div>
+        <div class="progress-bar-wrap">
+          <div id="progress-fill" class="progress-bar-fill" style="width:0%"></div>
+        </div>
+        <div id="card-counter" class="card-counter"></div>
+        <div id="quiz-card-wrap"></div>
+        <div id="quiz-actions" class="quiz-actions" style="display:none"></div>
+        <div id="quiz-done" class="quiz-done" style="display:none">
+          <div class="big">🎉</div>
+          <h2 id="done-title">Раунд завершён!</h2>
+          <p id="done-sub">Вот ваши результаты:</p>
+          <div class="score-row">
+            <div class="score-box"><div id="done-correct" class="score-num score-green">0</div><div class="score-lbl" id="done-correct-lbl">ВЕРНО</div></div>
+            <div class="score-box" id="done-promoted-box" style="display:none"><div id="done-promoted" class="score-num score-indigo">0</div><div class="score-lbl">ВЫУЧЕНО</div></div>
+            <div class="score-box"><div id="done-total" class="score-num">0</div><div class="score-lbl">ВСЕГО</div></div>
+            <div class="score-box"><div id="done-pct" class="score-num score-amber">0%</div><div class="score-lbl">РЕЗУЛЬТАТ</div></div>
+          </div>
+          <button class="btn btn-primary" onclick="startQuiz()">Ещё раз</button>
+        </div>
+        <div id="quiz-deck-list"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ── Edit modal ─────────────────────────────────── -->
+<div id="edit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;align-items:center;justify-content:center;padding:16px;">
+  <div style="background:#fff;border-radius:16px;padding:24px;width:100%;max-width:480px;box-shadow:0 8px 40px rgba(0,0,0,.25);">
+    <div style="font-size:1.1rem;font-weight:700;margin-bottom:16px;color:var(--gray900)">✏️ Редактировать слово</div>
+    <div class="form-row">
+      <div class="field"><label>СЛОВО</label><input id="edit-tr" type="text" autocomplete="off" /></div>
+      <div class="field"><label>ПЕРЕВОД</label><input id="edit-en" type="text" autocomplete="off" /></div>
+      <div class="field">
+        <label>КАТЕГОРИЯ</label>
+        <select id="edit-cat">
+          <option value="other">📦 Разное</option>
+          <option value="greeting">🤝 Приветствия</option>
+          <option value="family">👨‍👩‍👧 Семья</option>
+          <option value="profession">💼 Профессии</option>
+          <option value="body">🫀 Части тела</option>
+          <option value="food">🍽️ Еда и напитки</option>
+          <option value="produce">🥦 Овощи и фрукты</option>
+          <option value="animal">🐾 Животные</option>
+          <option value="home">🏠 Дом</option>
+          <option value="clothing">👕 Одежда</option>
+          <option value="color">🎨 Цвета</option>
+          <option value="number">🔢 Числа</option>
+          <option value="time">⏰ Время</option>
+          <option value="transport">🚗 Транспорт</option>
+          <option value="city">🏙️ Город и места</option>
+          <option value="nature">🌿 Природа</option>
+          <option value="pronoun">👤 Местоимения</option>
+          <option value="question">❓ Вопросы</option>
+          <option value="verb">⚡ Глаголы</option>
+          <option value="adjective">📝 Прилагательные</option>
+          <option value="preposition">🔗 Предлоги и союзы</option>
+          <option value="phrase">💬 Фразы</option>
+        </select>
+      </div>
+      <div class="field full"><label>ЗАМЕТКА</label><textarea id="edit-notes" style="min-height:56px"></textarea></div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px">
+      <button class="btn btn-ghost" onclick="closeEditModal()">Отмена</button>
+      <button class="btn btn-primary" onclick="saveEditedWord()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Telegram Mini App init ─────────────────────────────
+const tg = window.Telegram?.WebApp;
+if (tg) { tg.ready(); tg.expand(); tg.disableVerticalSwipes?.(); tg.setHeaderColor?.('#6b5b4f'); tg.setBackgroundColor?.('#f8f6f4'); }
+
+// ── Categories ─────────────────────────────────────────
+const CATEGORIES = {
+  greeting:'🤝 Приветствия', family:'👨‍👩‍👧 Семья', profession:'💼 Профессии',
+  body:'🫀 Части тела', food:'🍽️ Еда и напитки', produce:'🥦 Овощи и фрукты',
+  animal:'🐾 Животные', home:'🏠 Дом', clothing:'👕 Одежда', color:'🎨 Цвета',
+  number:'🔢 Числа', time:'⏰ Время', transport:'🚗 Транспорт', city:'🏙️ Город и места',
+  nature:'🌿 Природа', pronoun:'👤 Местоимения', question:'❓ Вопросы',
+  verb:'⚡ Глаголы', adjective:'📝 Прилагательные', preposition:'🔗 Предлоги и союзы',
+  phrase:'💬 Фразы', other:'📦 Разное',
+};
+
+function getCat(w) { return w.category || 'other'; }
+
+// ── Storage ─────────────────────────────────────────────
+const STORE_KEY = 'spanish_kartlari_v1';
+let _memoryStore = null;
+
+function isLocalStorageAvailable() {
+  try { const t = '__ls_test__'; localStorage.setItem(t, '1'); localStorage.removeItem(t); return true; }
+  catch { return false; }
+}
+const _lsAvailable = isLocalStorageAvailable();
+
+function loadWords() {
+  if (!_lsAvailable) return _memoryStore ? [..._memoryStore] : [];
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || []; }
+  catch { return []; }
+}
+function saveWords(words) {
+  if (!_lsAvailable) { _memoryStore = [...words]; return; }
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(words)); }
+  catch(e) { _memoryStore = [...words]; console.warn('localStorage full:', e); }
+}
+
+// ── TTS (Web Speech API — надёжно на iOS при нажатии кнопки) ─
+function speakSpanish(text) {
+  if (!text || !text.trim()) return;
+  _speakWithSynthesis(text.trim(), 'es-ES');
+}
+
+function _speakWithSynthesis(text, lang) {
+  if (!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = lang || 'es-ES';
+  utt.rate = 0.85;
+
+  const doSpeak = () => {
+    const voices = speechSynthesis.getVoices();
+    const langPrefix = (lang || 'es-ES').split('-')[0];
+    const match = voices.filter(v => v.lang.startsWith(langPrefix));
+    // prefer online / neural voices (Windows 10/11, macOS)
+    const best = match.find(v => /online|natural|neural|aria|guy/i.test(v.name))
+      || match.find(v => v.lang === (lang || 'es-ES'))
+      || match[0];
+    if (best) utt.voice = best;
+    speechSynthesis.speak(utt);
+  };
+
+  if (speechSynthesis.getVoices().length === 0) {
+    speechSynthesis.addEventListener('voiceschanged', doSpeak, { once: true });
+  } else {
+    doSpeak();
+  }
+}
+
+// ── Tabs ────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelectorAll('nav button')[name === 'quiz' ? 0 : 1].classList.add('active');
+  if (name === 'quiz') initQuiz();
+}
+
+// ── Add Word ────────────────────────────────────────────
+function addWord(e) {
+  e.preventDefault();
+  const tr       = document.getElementById('inp-tr').value.trim();
+  const en       = document.getElementById('inp-en').value.trim();
+  const notes    = document.getElementById('inp-notes').value.trim();
+  const category = document.getElementById('inp-cat').value || 'other';
+  const words = loadWords();
+  if (words.some(w => w.tr.toLowerCase() === tr.toLowerCase())) {
+    showMsg('add-msg', 'Такое слово уже есть!', 'error'); return;
+  }
+  words.push({ id: Date.now().toString(), tr, en, notes, category, addedAt: Date.now(), correct: 0, incorrect: 0 });
+  saveWords(words);
+  document.getElementById('inp-tr').value = '';
+  document.getElementById('inp-en').value = '';
+  document.getElementById('inp-notes').value = '';
+  document.getElementById('inp-cat').value = 'other';
+  document.getElementById('inp-tr').focus();
+  showMsg('add-msg', `«${tr}» добавлено!`, 'success');
+  populateCatFilter();
+  renderWordList();
+}
+
+function showMsg(id, text, type) {
+  const el = document.getElementById(id);
+  el.textContent = text; el.className = 'msg ' + type + ' show';
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ── Word List ───────────────────────────────────────────
+function renderWordItem(w) {
+  const isNew = w.toLearn === true;
+  const total = w.correct + w.incorrect;
+  const statsHtml = total > 0
+    ? `<div class="word-stats"><span class="stat-pill stat-correct">✓ ${w.correct}</span><span class="stat-pill stat-incorrect">✗ ${w.incorrect}</span></div>` : '';
+  return `<div class="word-item" id="wi-${w.id}">
+    <div class="word-item-main">
+      <div class="word-tr">${escHtml(w.tr)}${isNew ? '<span class="badge-new">УЧИТ</span>' : ''}</div>
+      <div class="word-en">${escHtml(w.en)}</div>
+      ${w.notes ? `<div class="word-notes">${escHtml(w.notes)}</div>` : ''}
+    </div>
+    ${statsHtml}
+    <button class="btn-icon" title="Edit" onclick="editWord('${w.id}')">✏️</button>
+    <button class="btn-icon" title="Delete" onclick="deleteWord('${w.id}')">🗑️</button>
+  </div>`;
+}
+
+let activeCatFilter = '';
+function setCatFilter(cat) { activeCatFilter = cat; renderWordList(); }
+
+function renderWordList() {
+  const words  = loadWords();
+  const query  = document.getElementById('search-inp').value.trim().toLowerCase();
+  const baseCat = activeCatFilter ? words.filter(w => getCat(w) === activeCatFilter) : words;
+  const filtered = query ? baseCat.filter(w =>
+    w.tr.toLowerCase().includes(query) || w.en.toLowerCase().includes(query) ||
+    (w.notes || '').toLowerCase().includes(query)) : baseCat;
+  const learningCount = words.filter(w => w.toLearn === true).length;
+  document.getElementById('word-count').innerHTML =
+    `${words.length} ${words.length === 1 ? 'слово' : words.length < 5 ? 'слова' : 'слов'} всего` +
+    (learningCount > 0 ? ` &nbsp;·&nbsp; <span style="color:#15803d;font-weight:700">${learningCount} учит</span>` : '');
+  const listEl = document.getElementById('word-list');
+  if (filtered.length === 0) {
+    listEl.innerHTML = words.length === 0
+      ? `<div class="empty-state"><div class="emoji">🌱</div><p>Слов пока нет — добавьте первое!</p></div>`
+      : `<div class="empty-state"><div class="emoji">🔍</div><p>Ничего не найдено.</p></div>`;
+    return;
+  }
+  listEl.innerHTML = filtered.slice().reverse().map(w => renderWordItem(w)).join('');
+}
+
+function deleteWord(id) { saveWords(loadWords().filter(w => w.id !== id)); renderWordList(); }
+
+function deleteWordAndRefresh(id) {
+  saveWords(loadWords().filter(w => w.id !== id));
+  renderWordList(); populateCatFilter(); updateModeBadges();
+  deck = deck.filter(w => w.id !== id);
+  if (deckIdx >= deck.length) deckIdx = Math.max(0, deck.length - 1);
+  renderDeckWordList();
+  if (deck.length === 0) initQuiz();
+}
+
+// ── Edit Word ───────────────────────────────────────────
+let editingWordId = null;
+
+function editWord(id) {
+  const w = loadWords().find(w => w.id === id);
+  if (!w) return;
+  editingWordId = id;
+  document.getElementById('edit-tr').value    = w.tr;
+  document.getElementById('edit-en').value    = w.en;
+  document.getElementById('edit-notes').value = w.notes || '';
+  document.getElementById('edit-cat').value   = w.category || 'other';
+  document.getElementById('edit-modal').style.display = 'flex';
+}
+function closeEditModal() { document.getElementById('edit-modal').style.display = 'none'; editingWordId = null; }
+function saveEditedWord() {
+  if (!editingWordId) return;
+  const tr = document.getElementById('edit-tr').value.trim();
+  const en = document.getElementById('edit-en').value.trim();
+  if (!tr || !en) return;
+  const words = loadWords();
+  const idx = words.findIndex(w => w.id === editingWordId);
+  if (idx !== -1) {
+    words[idx].tr = tr; words[idx].en = en;
+    words[idx].notes = document.getElementById('edit-notes').value.trim();
+    words[idx].category = document.getElementById('edit-cat').value;
+    saveWords(words);
+  }
+  closeEditModal(); renderWordList(); renderDeckWordList();
+}
+document.getElementById('edit-modal').addEventListener('click', function(e) { if (e.target === this) closeEditModal(); });
+
+function escHtml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// ── Quiz State ──────────────────────────────────────────
+let quizMode = 'learn';
+let deck = [], deckIdx = 0;
+let sessionCorrect = 0, sessionIncorrect = 0, sessionPromoted = 0;
+let cardFlipped = false;
+function initQuiz() {
+  const words = loadWords();
+  const noWrap   = document.getElementById('quiz-no-words');
+  const quizArea = document.getElementById('quiz-area');
+  if (words.length === 0) { noWrap.style.display = ''; quizArea.style.display = 'none'; }
+  else { noWrap.style.display = 'none'; quizArea.style.display = ''; updateModeBadges(); startQuiz(); }
+}
+
+function updateModeBadges() {
+  const words = loadWords();
+  document.getElementById('badge-new-count').textContent = words.filter(w => w.toLearn === true).length;
+  document.getElementById('badge-all-count').textContent = words.length;
+}
+
+function setQuizMode(mode) {
+  quizMode = mode; deckListOpen = false;
+  document.getElementById('mode-btn-learn').classList.toggle('active',  mode === 'learn');
+  document.getElementById('mode-btn-repeat').classList.toggle('active', mode === 'repeat');
+  startQuiz();
+}
+
+function buildDeck(words) { return [...words].sort(() => Math.random() - .5); }
+
+function startQuiz() {
+  updateModeBadges();
+  const allWords = loadWords();
+  let pool = quizMode === 'learn' ? allWords.filter(w => w.toLearn === true) : allWords;
+
+  const grpSel = document.getElementById('quiz-group');
+  const prevGrp = grpSel.value;
+  grpSel.innerHTML = '<option value="">Все группы</option>';
+  const catCounts = {};
+  pool.forEach(w => { const c = getCat(w); catCounts[c] = (catCounts[c] || 0) + 1; });
+  const catOrd = Object.keys(CATEGORIES);
+  Object.keys(catCounts).sort((a, b) => {
+    const ia = catOrd.indexOf(a), ib = catOrd.indexOf(b);
+    return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+  }).forEach(cat => {
+    const o = document.createElement('option');
+    o.value = cat; o.textContent = (CATEGORIES[cat] || cat) + ' · ' + catCounts[cat];
+    grpSel.appendChild(o);
+  });
+  if ([...grpSel.options].some(o => o.value === prevGrp)) grpSel.value = prevGrp;
+  if (grpSel.value) pool = pool.filter(w => getCat(w) === grpSel.value);
+
+  if (pool.length === 0) {
+    const msgs = {
+      learn:  { icon: '🌱', title: 'Список «Учу» пуст', text: 'Перейдите в «Все» и нажмите «📚 Учу» — слова попадут сюда.' },
+      repeat: { icon: '✅', title: 'Список пуст!', text: 'Добавьте слова, чтобы начать повторение.' },
+    };
+    const m = msgs[quizMode];
+    document.getElementById('quiz-card-wrap').innerHTML =
+      `<div class="learn-done-banner"><div class="big">${m.icon}</div><h2>${m.title}</h2><p>${m.text}</p></div>`;
+    document.getElementById('quiz-actions').style.display = 'none';
+    document.getElementById('quiz-done').style.display = 'none';
+    document.getElementById('card-counter').textContent = '';
+    document.getElementById('progress-fill').style.width = '0%';
+    resetSessionBar(); renderDeckWordList(); return;
+  }
+
+  deck = buildDeck(pool); deckIdx = 0;
+  sessionCorrect = 0; sessionIncorrect = 0; sessionPromoted = 0;
+  document.getElementById('quiz-done').style.display = 'none';
+  document.getElementById('quiz-actions').style.display = 'none';
+  updateSessionBar(); showCard(); renderDeckWordList();
+}
+
+function resetSessionBar() {
+  document.getElementById('stat-total').textContent   = '0 слов';
+  document.getElementById('stat-correct').textContent = '0 верно';
+}
+
+// ── Show card ───────────────────────────────────────────
+function showCard() {
+  if (deckIdx >= deck.length) { endQuiz(); return; }
+  cardFlipped = false;
+  const word = deck[deckIdx];
+  const dir  = document.getElementById('quiz-dir')?.value ?? '';
+  const showEn = dir === 'tr-en' || (dir === 'random' && Math.random() > .5);
+  word._showTr = showEn;
+
+  const front    = showEn ? word.tr : word.en;
+  const back     = showEn ? word.en : word.tr;
+  const frontLbl = showEn ? '🇪🇸 Español' : '🇷🇺 Русский';
+  const backLbl  = showEn ? '🇷🇺 Русский' : '🇪🇸 Español';
+
+  document.getElementById('quiz-card-wrap').innerHTML = `
+    <div class="card-scene" onclick="flipCard()">
+      <button type="button" class="card-speaker-btn" data-word="${(word.tr || '').replace(/"/g,'&quot;')}" onclick="event.stopPropagation(); speakSpanish(this.getAttribute('data-word'))" title="Произношение">🔊</button>
+      <div class="card-flip" id="flip-card">
+        <div class="card-face card-front">
+          <div class="card-label">${frontLbl}</div>
+          <div class="card-word">${escHtml(front)}</div>
+          ${word.notes && showEn ? `<div class="card-hint">${escHtml(word.notes)}</div>` : ''}
+          ${!showEn ? '<div class="card-tap"><span>👆</span> перевод</div>' : ''}
+        </div>
+        <div class="card-face card-back">
+          <div class="card-label">${backLbl}</div>
+          <div class="card-word">${escHtml(back)}</div>
+          ${word.notes && !showEn ? `<div class="card-hint">${escHtml(word.notes)}</div>` : ''}
+        </div>
+      </div>
+    </div>`;
+
+  document.getElementById('quiz-actions').style.display = 'none';
+  document.getElementById('card-counter').textContent = `Карточка ${deckIdx + 1} из ${deck.length}`;
+  document.getElementById('progress-fill').style.width = (deckIdx / deck.length * 100) + '%';
+
+}
+
+function flipCard() {
+  cardFlipped = !cardFlipped;
+  tg?.HapticFeedback?.impactOccurred('light');
+  document.getElementById('flip-card').classList.toggle('flipped', cardFlipped);
+  const actEl = document.getElementById('quiz-actions');
+  if (cardFlipped) {
+    setTimeout(() => renderActionButtons(), 300);
+    // In en-tr mode English is on back — speak when flipped
+    const word = deck[deckIdx];
+  }
+}
+
+function renderActionButtons() {
+  const actEl = document.getElementById('quiz-actions');
+  let mainBtns;
+  if (quizMode === 'learn') {
+    mainBtns = `<button class="btn btn-amber" onclick="markCard(false, false)">😓 Ещё учу</button>
+                <button class="btn btn-indigo" onclick="markCard(true, true)">🎓 Выучил!</button>`;
+  } else {
+    mainBtns = `<button class="btn btn-amber" onclick="markCard(false, false)">📚 Учу</button>
+                <button class="btn btn-green" onclick="markCard(true, false)">✓ Знаю!</button>`;
+  }
+  actEl.innerHTML = mainBtns; actEl.style.display = 'flex';
+}
+
+function markCard(correct, promote) {
+  tg?.HapticFeedback?.notificationOccurred(correct ? 'success' : 'error');
+  const words = loadWords();
+  const word  = deck[deckIdx];
+  const idx   = words.findIndex(w => w.id === word.id);
+  if (idx !== -1) {
+    if (correct) words[idx].correct++; else words[idx].incorrect++;
+    if (promote) words[idx].toLearn = false;
+    if (!correct) words[idx].toLearn = true;
+    saveWords(words);
+  }
+  if (correct) sessionCorrect++; else sessionIncorrect++;
+  if (promote) sessionPromoted++;
+  deckIdx++; updateSessionBar(); showCard();
+}
+
+function updateSessionBar() {
+  document.getElementById('stat-total').textContent   = `${deck.length} слов`;
+  document.getElementById('stat-correct').textContent = `${sessionCorrect} верно`;
+}
+
+// ── End Quiz ────────────────────────────────────────────
+function endQuiz() {
+  document.getElementById('quiz-card-wrap').innerHTML = '';
+  document.getElementById('quiz-actions').style.display = 'none';
+  document.getElementById('card-counter').textContent = '';
+  document.getElementById('progress-fill').style.width = '100%';
+  const total = sessionCorrect + sessionIncorrect;
+  const pct   = total === 0 ? 0 : Math.round((sessionCorrect / total) * 100);
+  document.getElementById('done-correct').textContent = sessionCorrect;
+  document.getElementById('done-total').textContent   = total;
+  document.getElementById('done-pct').textContent     = pct + '%';
+  if (quizMode === 'learn') {
+    document.getElementById('done-title').textContent = 'Сессия завершена!';
+    document.getElementById('done-sub').textContent   = sessionPromoted > 0
+      ? `Вы выучили ${sessionPromoted} сл. — они убраны из «Учу».` : 'Продолжайте тренироваться!';
+    document.getElementById('done-correct-lbl').textContent = 'ВЕРНО';
+    document.getElementById('done-promoted').textContent = sessionPromoted;
+    document.getElementById('done-promoted-box').style.display = sessionPromoted > 0 ? '' : 'none';
+  } else {
+    document.getElementById('done-title').textContent = 'Раунд завершён!';
+    document.getElementById('done-sub').textContent   = sessionIncorrect > 0
+      ? `${sessionIncorrect} сл. добавлено в «Учу».` : 'Отлично — все слова знаете!';
+    document.getElementById('done-correct-lbl').textContent = 'ВЕРНО';
+    document.getElementById('done-promoted-box').style.display = 'none';
+  }
+  document.getElementById('quiz-done').style.display = '';
+  updateModeBadges();
+  if (typeof AdsModule !== 'undefined' && AdsModule.maybeShowInterstitial) {
+    AdsModule.maybeShowInterstitial().catch(() => {});
+  }
+}
+
+// ── Deck word list ──────────────────────────────────────
+let deckListOpen = false;
+function toggleDeckList() { deckListOpen = !deckListOpen; renderDeckWordList(); }
+
+function renderDeckWordList() {
+  const wrap = document.getElementById('quiz-deck-list');
+  if (!wrap) return;
+  const allWords = loadWords();
+  let pool = quizMode === 'learn' ? allWords.filter(w => w.toLearn === true) : allWords;
+  const grpSel = document.getElementById('quiz-group');
+  if (grpSel && grpSel.value) pool = pool.filter(w => getCat(w) === grpSel.value);
+  if (pool.length === 0) { wrap.innerHTML = ''; return; }
+  const modeLabel = { learn: '🌱 Учу', repeat: '🔁 Все' }[quizMode] || '';
+  const chevron = deckListOpen ? '▲' : '▼';
+  const listHtml = deckListOpen ? `
+    <div style="display:flex;flex-direction:column;gap:6px;margin-top:10px">
+      ${pool.map(w => `
+        <div style="display:flex;align-items:center;gap:8px;background:var(--gray50);border:1.5px solid var(--gray200);border-radius:10px;padding:10px 14px">
+          <div style="flex:1;min-width:0">
+            <span style="font-weight:700;color:var(--gray900)">${escHtml(w.tr)}</span>
+            <span style="color:var(--gray400);margin:0 6px">—</span>
+            <span style="color:var(--gray600);font-size:.92rem">${escHtml(w.en)}</span>
+            ${w.notes ? `<div style="font-size:.78rem;color:var(--gray400);font-style:italic;margin-top:2px">${escHtml(w.notes)}</div>` : ''}
+          </div>
+          <button class="btn-icon" title="Редактировать" onclick="editWord('${w.id}')">✏️</button>
+          <button class="btn-icon" title="Удалить" onclick="deleteWordAndRefresh('${w.id}')">🗑️</button>
+        </div>`).join('')}
+    </div>` : '';
+  wrap.innerHTML = `
+    <div style="margin-top:16px">
+      <button onclick="toggleDeckList()" style="
+        width:100%;display:flex;align-items:center;justify-content:space-between;
+        background:var(--gray100);border:1.5px solid var(--gray200);border-radius:10px;
+        padding:11px 16px;cursor:pointer;font-family:inherit;transition:background .15s;
+      " onmouseover="this.style.background='var(--gray200)'" onmouseout="this.style.background='var(--gray100)'">
+        <span style="font-size:.9rem;font-weight:700;color:var(--gray700);display:flex;align-items:center;gap:8px">
+          ${modeLabel} — слова в этой вкладке
+          <span style="font-size:.73rem;font-weight:600;background:var(--white);border:1px solid var(--gray200);color:var(--gray600);padding:2px 8px;border-radius:99px">${pool.length}</span>
+        </span>
+        <span style="font-size:.75rem;color:var(--gray400)">${chevron}</span>
+      </button>
+      ${listHtml}
+    </div>`;
+}
+
+function populateCatFilter() {
+  const sel = document.getElementById('cat-filter');
+  if (!sel) return;
+  const words = loadWords();
+  const usedCats = new Set(words.map(w => getCat(w)));
+  if (activeCatFilter && !usedCats.has(activeCatFilter)) activeCatFilter = '';
+  sel.innerHTML = '<option value="">Все категории</option>';
+  Object.keys(CATEGORIES).filter(k => usedCats.has(k)).forEach(key => {
+    const count = words.filter(w => getCat(w) === key).length;
+    const o = document.createElement('option');
+    o.value = key; o.textContent = CATEGORIES[key] + ' · ' + count;
+    sel.appendChild(o);
+  });
+  sel.value = activeCatFilter;
+}
+
+// ── Seed data (800 Spanish words) ───────────────────────
+const SEED_KEY_ES1 = 'spanish_kartlari_seeded_es1';
+const SEED_WORDS_ES1 = [
+  {tr:'hola',en:'привет',category:'greeting'},
+  {tr:'adiós',en:'до свидания',category:'greeting'},
+  {tr:'buenos días',en:'доброе утро',category:'greeting'},
+  {tr:'buenas tardes',en:'добрый день',category:'greeting'},
+  {tr:'buenas noches',en:'добрый вечер / спокойной ночи',category:'greeting'},
+  {tr:'gracias',en:'спасибо',category:'greeting'},
+  {tr:'por favor',en:'пожалуйста',category:'greeting'},
+  {tr:'perdón',en:'извините',category:'greeting'},
+  {tr:'disculpe',en:'простите',category:'greeting'},
+  {tr:'de nada',en:'пожалуйста (в ответ)',category:'greeting'},
+  {tr:'¿Cómo está?',en:'как дела?',category:'greeting'},
+  {tr:'mucho gusto',en:'приятно познакомиться',category:'greeting'},
+  {tr:'felicidades',en:'поздравляю',category:'greeting'},
+  {tr:'feliz cumpleaños',en:'с днём рождения',category:'greeting'},
+  {tr:'salud',en:'за здоровье!',category:'greeting'},
+  {tr:'bienvenido',en:'добро пожаловать',category:'greeting'},
+  {tr:'madre',en:'мать',category:'family'},
+  {tr:'padre',en:'отец',category:'family'},
+  {tr:'hijo',en:'сын',category:'family'},
+  {tr:'hija',en:'дочь',category:'family'},
+  {tr:'hermano',en:'брат',category:'family'},
+  {tr:'hermana',en:'сестра',category:'family'},
+  {tr:'abuela',en:'бабушка',category:'family'},
+  {tr:'abuelo',en:'дедушка',category:'family'},
+  {tr:'tío',en:'дядя',category:'family'},
+  {tr:'tía',en:'тётя',category:'family'},
+  {tr:'primo',en:'двоюродный брат/сестра',category:'family'},
+  {tr:'esposo',en:'муж',category:'family'},
+  {tr:'esposa',en:'жена',category:'family'},
+  {tr:'bebé',en:'ребёнок (младенец)',category:'family'},
+  {tr:'niño',en:'ребёнок',category:'family'},
+  {tr:'familia',en:'семья',category:'family'},
+  {tr:'padres',en:'родители',category:'family'},
+  {tr:'abuelos',en:'бабушка и дедушка',category:'family'},
+  {tr:'sobrino',en:'племянник',category:'family'},
+  {tr:'sobrina',en:'племянница',category:'family'},
+  {tr:'médico',en:'врач',category:'profession'},
+  {tr:'profesor',en:'учитель',category:'profession'},
+  {tr:'ingeniero',en:'инженер',category:'profession'},
+  {tr:'abogado',en:'юрист',category:'profession'},
+  {tr:'enfermero',en:'медсестра',category:'profession'},
+  {tr:'conductor',en:'водитель',category:'profession'},
+  {tr:'cocinero',en:'повар',category:'profession'},
+  {tr:'arquitecto',en:'архитектор',category:'profession'},
+  {tr:'periodista',en:'журналист',category:'profession'},
+  {tr:'programador',en:'программист',category:'profession'},
+  {tr:'diseñador',en:'дизайнер',category:'profession'},
+  {tr:'gerente',en:'менеджер',category:'profession'},
+  {tr:'contador',en:'бухгалтер',category:'profession'},
+  {tr:'policía',en:'полицейский',category:'profession'},
+  {tr:'bombero',en:'пожарный',category:'profession'},
+  {tr:'piloto',en:'пилот',category:'profession'},
+  {tr:'científico',en:'учёный',category:'profession'},
+  {tr:'artista',en:'художник',category:'profession'},
+  {tr:'actor',en:'актёр',category:'profession'},
+  {tr:'cantante',en:'певец',category:'profession'},
+  {tr:'escritor',en:'писатель',category:'profession'},
+  {tr:'granjero',en:'фермер',category:'profession'},
+  {tr:'soldado',en:'солдат',category:'profession'},
+  {tr:'camarero',en:'официант',category:'profession'},
+  {tr:'dentista',en:'стоматолог',category:'profession'},
+  {tr:'cabeza',en:'голова',category:'body'},
+  {tr:'cara',en:'лицо',category:'body'},
+  {tr:'ojo',en:'глаз',category:'body'},
+  {tr:'oreja',en:'ухо',category:'body'},
+  {tr:'nariz',en:'нос',category:'body'},
+  {tr:'boca',en:'рот',category:'body'},
+  {tr:'dientes',en:'зубы',category:'body'},
+  {tr:'pelo',en:'волосы',category:'body'},
+  {tr:'cuello',en:'шея',category:'body'},
+  {tr:'hombro',en:'плечо',category:'body'},
+  {tr:'brazo',en:'рука (целиком)',category:'body'},
+  {tr:'mano',en:'кисть руки',category:'body'},
+  {tr:'dedo',en:'палец',category:'body'},
+  {tr:'pecho',en:'грудь',category:'body'},
+  {tr:'espalda',en:'спина',category:'body'},
+  {tr:'estómago',en:'желудок',category:'body'},
+  {tr:'pierna',en:'нога',category:'body'},
+  {tr:'rodilla',en:'колено',category:'body'},
+  {tr:'pie',en:'ступня',category:'body'},
+  {tr:'corazón',en:'сердце',category:'body'},
+  {tr:'cerebro',en:'мозг',category:'body'},
+  {tr:'sangre',en:'кровь',category:'body'},
+  {tr:'hueso',en:'кость',category:'body'},
+  {tr:'piel',en:'кожа',category:'body'},
+  {tr:'labio',en:'губа',category:'body'},
+  {tr:'agua',en:'вода',category:'food'},
+  {tr:'pan',en:'хлеб',category:'food'},
+  {tr:'leche',en:'молоко',category:'food'},
+  {tr:'huevo',en:'яйцо',category:'food'},
+  {tr:'carne',en:'мясо',category:'food'},
+  {tr:'arroz',en:'рис',category:'food'},
+  {tr:'pasta',en:'паста',category:'food'},
+  {tr:'sopa',en:'суп',category:'food'},
+  {tr:'ensalada',en:'салат',category:'food'},
+  {tr:'café',en:'кофе',category:'food'},
+  {tr:'té',en:'чай',category:'food'},
+  {tr:'zumo',en:'сок',category:'food'},
+  {tr:'cerveza',en:'пиво',category:'food'},
+  {tr:'vino',en:'вино',category:'food'},
+  {tr:'azúcar',en:'сахар',category:'food'},
+  {tr:'sal',en:'соль',category:'food'},
+  {tr:'aceite',en:'масло (растительное)',category:'food'},
+  {tr:'mantequilla',en:'сливочное масло',category:'food'},
+  {tr:'queso',en:'сыр',category:'food'},
+  {tr:'pastel',en:'торт',category:'food'},
+  {tr:'pizza',en:'пицца',category:'food'},
+  {tr:'bocadillo',en:'бутерброд',category:'food'},
+  {tr:'chocolate',en:'шоколад',category:'food'},
+  {tr:'miel',en:'мёд',category:'food'},
+  {tr:'yogur',en:'йогурт',category:'food'},
+  {tr:'helado',en:'мороженое',category:'food'},
+  {tr:'desayuno',en:'завтрак',category:'food'},
+  {tr:'almuerzo',en:'обед',category:'food'},
+  {tr:'cena',en:'ужин',category:'food'},
+  {tr:'manzana',en:'яблоко',category:'produce'},
+  {tr:'plátano',en:'банан',category:'produce'},
+  {tr:'naranja',en:'апельсин',category:'produce'},
+  {tr:'limón',en:'лимон',category:'produce'},
+  {tr:'fresa',en:'клубника',category:'produce'},
+  {tr:'uva',en:'виноград',category:'produce'},
+  {tr:'sandía',en:'арбуз',category:'produce'},
+  {tr:'melocotón',en:'персик',category:'produce'},
+  {tr:'pera',en:'груша',category:'produce'},
+  {tr:'cereza',en:'вишня',category:'produce'},
+  {tr:'mango',en:'манго',category:'produce'},
+  {tr:'piña',en:'ананас',category:'produce'},
+  {tr:'tomate',en:'помидор',category:'produce'},
+  {tr:'patata',en:'картофель',category:'produce'},
+  {tr:'zanahoria',en:'морковь',category:'produce'},
+  {tr:'cebolla',en:'лук',category:'produce'},
+  {tr:'ajo',en:'чеснок',category:'produce'},
+  {tr:'pepino',en:'огурец',category:'produce'},
+  {tr:'pimiento',en:'перец',category:'produce'},
+  {tr:'champiñón',en:'гриб',category:'produce'},
+  {tr:'repollo',en:'капуста',category:'produce'},
+  {tr:'lechuga',en:'салат (листья)',category:'produce'},
+  {tr:'maíz',en:'кукуруза',category:'produce'},
+  {tr:'guisante',en:'горошек',category:'produce'},
+  {tr:'espinaca',en:'шпинат',category:'produce'},
+  {tr:'perro',en:'собака',category:'animal'},
+  {tr:'gato',en:'кошка',category:'animal'},
+  {tr:'caballo',en:'лошадь',category:'animal'},
+  {tr:'vaca',en:'корова',category:'animal'},
+  {tr:'cerdo',en:'свинья',category:'animal'},
+  {tr:'oveja',en:'овца',category:'animal'},
+  {tr:'pollo',en:'курица',category:'animal'},
+  {tr:'pato',en:'утка',category:'animal'},
+  {tr:'pájaro',en:'птица',category:'animal'},
+  {tr:'león',en:'лев',category:'animal'},
+  {tr:'tigre',en:'тигр',category:'animal'},
+  {tr:'elefante',en:'слон',category:'animal'},
+  {tr:'oso',en:'медведь',category:'animal'},
+  {tr:'lobo',en:'волк',category:'animal'},
+  {tr:'zorro',en:'лиса',category:'animal'},
+  {tr:'conejo',en:'кролик',category:'animal'},
+  {tr:'ratón',en:'мышь',category:'animal'},
+  {tr:'serpiente',en:'змея',category:'animal'},
+  {tr:'rana',en:'лягушка',category:'animal'},
+  {tr:'mariposa',en:'бабочка',category:'animal'},
+  {tr:'abeja',en:'пчела',category:'animal'},
+  {tr:'mono',en:'обезьяна',category:'animal'},
+  {tr:'jirafa',en:'жираф',category:'animal'},
+  {tr:'ballena',en:'кит',category:'animal'},
+  {tr:'pez',en:'рыба',category:'animal'},
+  {tr:'casa',en:'дом',category:'home'},
+  {tr:'apartamento',en:'квартира',category:'home'},
+  {tr:'habitación',en:'комната',category:'home'},
+  {tr:'cocina',en:'кухня',category:'home'},
+  {tr:'dormitorio',en:'спальня',category:'home'},
+  {tr:'baño',en:'ванная',category:'home'},
+  {tr:'sala',en:'гостиная',category:'home'},
+  {tr:'puerta',en:'дверь',category:'home'},
+  {tr:'ventana',en:'окно',category:'home'},
+  {tr:'suelo',en:'пол',category:'home'},
+  {tr:'techo',en:'потолок',category:'home'},
+  {tr:'pared',en:'стена',category:'home'},
+  {tr:'mesa',en:'стол',category:'home'},
+  {tr:'silla',en:'стул',category:'home'},
+  {tr:'sofá',en:'диван',category:'home'},
+  {tr:'cama',en:'кровать',category:'home'},
+  {tr:'estante',en:'полка',category:'home'},
+  {tr:'lámpara',en:'лампа',category:'home'},
+  {tr:'nevera',en:'холодильник',category:'home'},
+  {tr:'estufa',en:'плита',category:'home'},
+  {tr:'lavadora',en:'стиральная машина',category:'home'},
+  {tr:'televisión',en:'телевизор',category:'home'},
+  {tr:'espejo',en:'зеркало',category:'home'},
+  {tr:'alfombra',en:'ковёр',category:'home'},
+  {tr:'llave',en:'ключ',category:'home'},
+  {tr:'camisa',en:'рубашка',category:'clothing'},
+  {tr:'pantalones',en:'брюки',category:'clothing'},
+  {tr:'vestido',en:'платье',category:'clothing'},
+  {tr:'falda',en:'юбка',category:'clothing'},
+  {tr:'chaqueta',en:'куртка',category:'clothing'},
+  {tr:'abrigo',en:'пальто',category:'clothing'},
+  {tr:'zapatos',en:'ботинки',category:'clothing'},
+  {tr:'botas',en:'сапоги',category:'clothing'},
+  {tr:'calcetines',en:'носки',category:'clothing'},
+  {tr:'sombrero',en:'шляпа',category:'clothing'},
+  {tr:'bufanda',en:'шарф',category:'clothing'},
+  {tr:'guantes',en:'перчатки',category:'clothing'},
+  {tr:'jersey',en:'свитер',category:'clothing'},
+  {tr:'vaqueros',en:'джинсы',category:'clothing'},
+  {tr:'traje',en:'костюм',category:'clothing'},
+  {tr:'ropa interior',en:'нижнее бельё',category:'clothing'},
+  {tr:'corbata',en:'галстук',category:'clothing'},
+  {tr:'bolso',en:'сумка',category:'clothing'},
+  {tr:'gafas',en:'очки',category:'clothing'},
+  {tr:'anillo',en:'кольцо',category:'clothing'},
+  {tr:'rojo',en:'красный',category:'color'},
+  {tr:'azul',en:'синий',category:'color'},
+  {tr:'verde',en:'зелёный',category:'color'},
+  {tr:'amarillo',en:'жёлтый',category:'color'},
+  {tr:'naranja',en:'оранжевый',category:'color'},
+  {tr:'morado',en:'фиолетовый',category:'color'},
+  {tr:'rosa',en:'розовый',category:'color'},
+  {tr:'marrón',en:'коричневый',category:'color'},
+  {tr:'negro',en:'чёрный',category:'color'},
+  {tr:'blanco',en:'белый',category:'color'},
+  {tr:'gris',en:'серый',category:'color'},
+  {tr:'dorado',en:'золотой',category:'color'},
+  {tr:'plateado',en:'серебряный',category:'color'},
+  {tr:'cero',en:'ноль',category:'number'},
+  {tr:'uno',en:'один',category:'number'},
+  {tr:'dos',en:'два',category:'number'},
+  {tr:'tres',en:'три',category:'number'},
+  {tr:'cuatro',en:'четыре',category:'number'},
+  {tr:'cinco',en:'пять',category:'number'},
+  {tr:'seis',en:'шесть',category:'number'},
+  {tr:'siete',en:'семь',category:'number'},
+  {tr:'ocho',en:'восемь',category:'number'},
+  {tr:'nueve',en:'девять',category:'number'},
+  {tr:'diez',en:'десять',category:'number'},
+  {tr:'once',en:'одиннадцать',category:'number'},
+  {tr:'doce',en:'двенадцать',category:'number'},
+  {tr:'veinte',en:'двадцать',category:'number'},
+  {tr:'cien',en:'сто',category:'number'},
+  {tr:'mil',en:'тысяча',category:'number'},
+  {tr:'millón',en:'миллион',category:'number'},
+  {tr:'primero',en:'первый',category:'number'},
+  {tr:'segundo',en:'второй',category:'number'},
+  {tr:'tercero',en:'третий',category:'number'},
+  {tr:'minuto',en:'минута',category:'time'},
+  {tr:'hora',en:'час',category:'time'},
+  {tr:'día',en:'день',category:'time'},
+  {tr:'semana',en:'неделя',category:'time'},
+  {tr:'mes',en:'месяц',category:'time'},
+  {tr:'año',en:'год',category:'time'},
+  {tr:'la mañana',en:'утро',category:'time'},
+  {tr:'tarde',en:'послеобед',category:'time'},
+  {tr:'noche',en:'ночь',category:'time'},
+  {tr:'hoy',en:'сегодня',category:'time'},
+  {tr:'ayer',en:'вчера',category:'time'},
+  {tr:'mañana',en:'завтра',category:'time'},
+  {tr:'ahora',en:'сейчас',category:'time'},
+  {tr:'lunes',en:'понедельник',category:'time'},
+  {tr:'martes',en:'вторник',category:'time'},
+  {tr:'miércoles',en:'среда',category:'time'},
+  {tr:'jueves',en:'четверг',category:'time'},
+  {tr:'viernes',en:'пятница',category:'time'},
+  {tr:'sábado',en:'суббота',category:'time'},
+  {tr:'domingo',en:'воскресенье',category:'time'},
+  {tr:'enero',en:'январь',category:'time'},
+  {tr:'febrero',en:'февраль',category:'time'},
+  {tr:'marzo',en:'март',category:'time'},
+  {tr:'abril',en:'апрель',category:'time'},
+  {tr:'mayo',en:'май',category:'time'},
+  {tr:'junio',en:'июнь',category:'time'},
+  {tr:'julio',en:'июль',category:'time'},
+  {tr:'agosto',en:'август',category:'time'},
+  {tr:'septiembre',en:'сентябрь',category:'time'},
+  {tr:'octubre',en:'октябрь',category:'time'},
+  {tr:'noviembre',en:'ноябрь',category:'time'},
+  {tr:'diciembre',en:'декабрь',category:'time'},
+  {tr:'primavera',en:'весна',category:'time'},
+  {tr:'verano',en:'лето',category:'time'},
+  {tr:'otoño',en:'осень',category:'time'},
+  {tr:'invierno',en:'зима',category:'time'},
+  {tr:'coche',en:'машина',category:'transport'},
+  {tr:'autobús',en:'автобус',category:'transport'},
+  {tr:'tren',en:'поезд',category:'transport'},
+  {tr:'avión',en:'самолёт',category:'transport'},
+  {tr:'barco',en:'корабль',category:'transport'},
+  {tr:'bicicleta',en:'велосипед',category:'transport'},
+  {tr:'moto',en:'мотоцикл',category:'transport'},
+  {tr:'taxi',en:'такси',category:'transport'},
+  {tr:'metro',en:'метро',category:'transport'},
+  {tr:'helicóptero',en:'вертолёт',category:'transport'},
+  {tr:'billete',en:'билет',category:'transport'},
+  {tr:'estación',en:'станция',category:'transport'},
+  {tr:'aeropuerto',en:'аэропорт',category:'transport'},
+  {tr:'carretera',en:'дорога',category:'transport'},
+  {tr:'puente',en:'мост',category:'transport'},
+  {tr:'ciudad',en:'город',category:'city'},
+  {tr:'calle',en:'улица',category:'city'},
+  {tr:'parque',en:'парк',category:'city'},
+  {tr:'tienda',en:'магазин',category:'city'},
+  {tr:'restaurante',en:'ресторан',category:'city'},
+  {tr:'escuela',en:'школа',category:'city'},
+  {tr:'hospital',en:'больница',category:'city'},
+  {tr:'banco',en:'банк',category:'city'},
+  {tr:'hotel',en:'гостиница',category:'city'},
+  {tr:'museo',en:'музей',category:'city'},
+  {tr:'iglesia',en:'церковь',category:'city'},
+  {tr:'mercado',en:'рынок',category:'city'},
+  {tr:'cine',en:'кинотеатр',category:'city'},
+  {tr:'biblioteca',en:'библиотека',category:'city'},
+  {tr:'farmacia',en:'аптека',category:'city'},
+  {tr:'correos',en:'почта',category:'city'},
+  {tr:'comisaría',en:'полицейский участок',category:'city'},
+  {tr:'universidad',en:'университет',category:'city'},
+  {tr:'oficina',en:'офис',category:'city'},
+  {tr:'jardín',en:'сад',category:'city'},
+  {tr:'sol',en:'солнце',category:'nature'},
+  {tr:'luna',en:'луна',category:'nature'},
+  {tr:'estrella',en:'звезда',category:'nature'},
+  {tr:'cielo',en:'небо',category:'nature'},
+  {tr:'nube',en:'облако',category:'nature'},
+  {tr:'lluvia',en:'дождь',category:'nature'},
+  {tr:'nieve',en:'снег',category:'nature'},
+  {tr:'viento',en:'ветер',category:'nature'},
+  {tr:'tormenta',en:'гроза',category:'nature'},
+  {tr:'mar',en:'море',category:'nature'},
+  {tr:'océano',en:'океан',category:'nature'},
+  {tr:'río',en:'река',category:'nature'},
+  {tr:'lago',en:'озеро',category:'nature'},
+  {tr:'montaña',en:'гора',category:'nature'},
+  {tr:'bosque',en:'лес',category:'nature'},
+  {tr:'árbol',en:'дерево',category:'nature'},
+  {tr:'flor',en:'цветок',category:'nature'},
+  {tr:'hierba',en:'трава',category:'nature'},
+  {tr:'tierra',en:'земля',category:'nature'},
+  {tr:'fuego',en:'огонь',category:'nature'},
+  {tr:'yo',en:'я',category:'pronoun'},
+  {tr:'tú',en:'ты / вы',category:'pronoun'},
+  {tr:'él',en:'он',category:'pronoun'},
+  {tr:'ella',en:'она',category:'pronoun'},
+  {tr:'ello',en:'оно',category:'pronoun'},
+  {tr:'nosotros',en:'мы',category:'pronoun'},
+  {tr:'ellos',en:'они',category:'pronoun'},
+  {tr:'mi',en:'мой',category:'pronoun'},
+  {tr:'tu',en:'твой / ваш',category:'pronoun'},
+  {tr:'su',en:'его / её / их',category:'pronoun'},
+  {tr:'nuestro',en:'наш',category:'pronoun'},
+  {tr:'este',en:'этот',category:'pronoun'},
+  {tr:'ese',en:'тот',category:'pronoun'},
+  {tr:'estos',en:'эти',category:'pronoun'},
+  {tr:'esos',en:'те',category:'pronoun'},
+  {tr:'qué',en:'что / какой',category:'question'},
+  {tr:'quién',en:'кто',category:'question'},
+  {tr:'dónde',en:'где',category:'question'},
+  {tr:'cuándo',en:'когда',category:'question'},
+  {tr:'por qué',en:'почему',category:'question'},
+  {tr:'cómo',en:'как',category:'question'},
+  {tr:'cuánto',en:'сколько (цена)',category:'question'},
+  {tr:'cuántos',en:'сколько (количество)',category:'question'},
+  {tr:'cuál',en:'который',category:'question'},
+  {tr:'de quién',en:'чей',category:'question'},
+  {tr:'ser',en:'быть',category:'verb'},
+  {tr:'tener',en:'иметь',category:'verb'},
+  {tr:'ir',en:'идти / ехать',category:'verb'},
+  {tr:'venir',en:'приходить',category:'verb'},
+  {tr:'hacer',en:'делать / создавать',category:'verb'},
+  {tr:'decir',en:'говорить',category:'verb'},
+  {tr:'saber',en:'знать',category:'verb'},
+  {tr:'ver',en:'видеть',category:'verb'},
+  {tr:'pensar',en:'думать',category:'verb'},
+  {tr:'querer',en:'хотеть',category:'verb'},
+  {tr:'dar',en:'давать',category:'verb'},
+  {tr:'tomar',en:'брать',category:'verb'},
+  {tr:'obtener',en:'получать',category:'verb'},
+  {tr:'encontrar',en:'находить',category:'verb'},
+  {tr:'comprar',en:'покупать',category:'verb'},
+  {tr:'vender',en:'продавать',category:'verb'},
+  {tr:'comer',en:'есть (кушать)',category:'verb'},
+  {tr:'beber',en:'пить',category:'verb'},
+  {tr:'dormir',en:'спать',category:'verb'},
+  {tr:'despertarse',en:'просыпаться',category:'verb'},
+  {tr:'trabajar',en:'работать',category:'verb'},
+  {tr:'estudiar',en:'учиться',category:'verb'},
+  {tr:'leer',en:'читать',category:'verb'},
+  {tr:'escribir',en:'писать',category:'verb'},
+  {tr:'hablar',en:'разговаривать',category:'verb'},
+  {tr:'escuchar',en:'слушать',category:'verb'},
+  {tr:'oír',en:'слышать',category:'verb'},
+  {tr:'llamar',en:'звонить',category:'verb'},
+  {tr:'abrir',en:'открывать',category:'verb'},
+  {tr:'cerrar',en:'закрывать',category:'verb'},
+  {tr:'empezar',en:'начинать',category:'verb'},
+  {tr:'terminar',en:'заканчивать',category:'verb'},
+  {tr:'ayudar',en:'помогать',category:'verb'},
+  {tr:'amar',en:'любить',category:'verb'},
+  {tr:'gustar',en:'нравиться',category:'verb'},
+  {tr:'vivir',en:'жить',category:'verb'},
+  {tr:'viajar',en:'путешествовать',category:'verb'},
+  {tr:'conducir',en:'ехать за рулём',category:'verb'},
+  {tr:'volar',en:'летать',category:'verb'},
+  {tr:'correr',en:'бежать',category:'verb'},
+  {tr:'caminar',en:'идти пешком',category:'verb'},
+  {tr:'sentarse',en:'сидеть',category:'verb'},
+  {tr:'estar de pie',en:'стоять',category:'verb'},
+  {tr:'esperar',en:'ждать',category:'verb'},
+  {tr:'pagar',en:'платить',category:'verb'},
+  {tr:'preguntar',en:'спрашивать',category:'verb'},
+  {tr:'responder',en:'отвечать',category:'verb'},
+  {tr:'jugar',en:'играть',category:'verb'},
+  {tr:'enseñar',en:'учить (кого-то)',category:'verb'},
+  {tr:'conocer',en:'встречать',category:'verb'},
+  {tr:'intentar',en:'пытаться',category:'verb'},
+  {tr:'usar',en:'использовать',category:'verb'},
+  {tr:'necesitar',en:'нуждаться',category:'verb'},
+  {tr:'recordar',en:'помнить',category:'verb'},
+  {tr:'olvidar',en:'забывать',category:'verb'},
+  {tr:'entender',en:'понимать',category:'verb'},
+  {tr:'sentir',en:'чувствовать',category:'verb'},
+  {tr:'cambiar',en:'менять',category:'verb'},
+  {tr:'mostrar',en:'показывать',category:'verb'},
+  {tr:'enviar',en:'отправлять',category:'verb'},
+  {tr:'traer',en:'приносить',category:'verb'},
+  {tr:'perder',en:'терять',category:'verb'},
+  {tr:'ganar',en:'выигрывать',category:'verb'},
+  {tr:'reír',en:'смеяться',category:'verb'},
+  {tr:'llorar',en:'плакать',category:'verb'},
+  {tr:'sonreír',en:'улыбаться',category:'verb'},
+  {tr:'cocinar',en:'готовить',category:'verb'},
+  {tr:'limpiar',en:'убирать',category:'verb'},
+  {tr:'construir',en:'строить',category:'verb'},
+  {tr:'romper',en:'ломать',category:'verb'},
+  {tr:'nadar',en:'плавать',category:'verb'},
+  {tr:'bailar',en:'танцевать',category:'verb'},
+  {tr:'cantar',en:'петь',category:'verb'},
+  {tr:'dibujar',en:'рисовать',category:'verb'},
+  {tr:'cortar',en:'резать',category:'verb'},
+  {tr:'caer',en:'падать',category:'verb'},
+  {tr:'saltar',en:'прыгать',category:'verb'},
+  {tr:'grande',en:'большой',category:'adjective'},
+  {tr:'pequeño',en:'маленький',category:'adjective'},
+  {tr:'largo',en:'длинный',category:'adjective'},
+  {tr:'corto',en:'короткий',category:'adjective'},
+  {tr:'alto',en:'высокий',category:'adjective'},
+  {tr:'nuevo',en:'новый',category:'adjective'},
+  {tr:'viejo',en:'старый',category:'adjective'},
+  {tr:'bueno',en:'хороший',category:'adjective'},
+  {tr:'malo',en:'плохой',category:'adjective'},
+  {tr:'caliente',en:'горячий / жаркий',category:'adjective'},
+  {tr:'frío',en:'холодный',category:'adjective'},
+  {tr:'cálido',en:'тёплый',category:'adjective'},
+  {tr:'rápido',en:'быстрый',category:'adjective'},
+  {tr:'lento',en:'медленный',category:'adjective'},
+  {tr:'fácil',en:'лёгкий',category:'adjective'},
+  {tr:'difícil',en:'трудный',category:'adjective'},
+  {tr:'hermoso',en:'красивый',category:'adjective'},
+  {tr:'feo',en:'некрасивый',category:'adjective'},
+  {tr:'fuerte',en:'сильный',category:'adjective'},
+  {tr:'débil',en:'слабый',category:'adjective'},
+  {tr:'feliz',en:'счастливый',category:'adjective'},
+  {tr:'triste',en:'грустный',category:'adjective'},
+  {tr:'cansado',en:'усталый',category:'adjective'},
+  {tr:'hambriento',en:'голодный',category:'adjective'},
+  {tr:'rico',en:'богатый',category:'adjective'},
+  {tr:'pobre',en:'бедный',category:'adjective'},
+  {tr:'abierto',en:'открытый',category:'adjective'},
+  {tr:'cerrado',en:'закрытый',category:'adjective'},
+  {tr:'limpio',en:'чистый',category:'adjective'},
+  {tr:'sucio',en:'грязный',category:'adjective'},
+  {tr:'lleno',en:'полный',category:'adjective'},
+  {tr:'vacío',en:'пустой',category:'adjective'},
+  {tr:'derecho',en:'правый / правильный',category:'adjective'},
+  {tr:'izquierdo',en:'левый',category:'adjective'},
+  {tr:'joven',en:'молодой',category:'adjective'},
+  {tr:'importante',en:'важный',category:'adjective'},
+  {tr:'interesante',en:'интересный',category:'adjective'},
+  {tr:'aburrido',en:'скучный',category:'adjective'},
+  {tr:'gracioso',en:'смешной',category:'adjective'},
+  {tr:'serio',en:'серьёзный',category:'adjective'},
+  {tr:'seguro',en:'безопасный',category:'adjective'},
+  {tr:'peligroso',en:'опасный',category:'adjective'},
+  {tr:'sano',en:'здоровый',category:'adjective'},
+  {tr:'enfermo',en:'больной',category:'adjective'},
+  {tr:'libre',en:'свободный',category:'adjective'},
+  {tr:'ocupado',en:'занятый',category:'adjective'},
+  {tr:'listo',en:'готовый',category:'adjective'},
+  {tr:'posible',en:'возможный',category:'adjective'},
+  {tr:'diferente',en:'разный',category:'adjective'},
+  {tr:'mismo',en:'одинаковый',category:'adjective'},
+  {tr:'solo',en:'один (в одиночестве)',category:'adjective'},
+  {tr:'afortunado',en:'удачливый',category:'adjective'},
+  {tr:'valiente',en:'смелый',category:'adjective'},
+  {tr:'amable',en:'добрый',category:'adjective'},
+  {tr:'inteligente',en:'умный',category:'adjective'},
+  {tr:'en',en:'в (внутри)',category:'preposition'},
+  {tr:'sobre',en:'на',category:'preposition'},
+  {tr:'a',en:'у / в (место)',category:'preposition'},
+  {tr:'hacia',en:'в / к (направление)',category:'preposition'},
+  {tr:'de',en:'из / от',category:'preposition'},
+  {tr:'con',en:'с',category:'preposition'},
+  {tr:'sin',en:'без',category:'preposition'},
+  {tr:'para',en:'для / за',category:'preposition'},
+  {tr:'acerca de',en:'о / около',category:'preposition'},
+  {tr:'entre',en:'между',category:'preposition'},
+  {tr:'debajo de',en:'под',category:'preposition'},
+  {tr:'encima de',en:'над',category:'preposition'},
+  {tr:'después de',en:'после',category:'preposition'},
+  {tr:'antes de',en:'до / перед',category:'preposition'},
+  {tr:'durante',en:'во время',category:'preposition'},
+  {tr:'y',en:'и',category:'preposition'},
+  {tr:'pero',en:'но',category:'preposition'},
+  {tr:'o',en:'или',category:'preposition'},
+  {tr:'porque',en:'потому что',category:'preposition'},
+  {tr:'si',en:'если',category:'preposition'},
+  {tr:'No entiendo',en:'Я не понимаю',category:'phrase'},
+  {tr:'¿Puede repetir?',en:'Вы можете повторить?',category:'phrase'},
+  {tr:'¿Cuánto cuesta?',en:'Сколько это стоит?',category:'phrase'},
+  {tr:'¿Dónde está el baño?',en:'Где туалет?',category:'phrase'},
+  {tr:'Estoy perdido',en:'Я заблудился',category:'phrase'},
+  {tr:'Llame a la policía',en:'Позвоните в полицию',category:'phrase'},
+  {tr:'Necesito ayuda',en:'Мне нужна помощь',category:'phrase'},
+  {tr:'¿Qué hora es?',en:'Который час?',category:'phrase'},
+  {tr:'Estoy bien',en:'У меня всё хорошо',category:'phrase'},
+  {tr:'No sé',en:'Я не знаю',category:'phrase'},
+  {tr:'sí',en:'да',category:'other'},
+  {tr:'no',en:'нет',category:'other'},
+  {tr:'quizás',en:'может быть',category:'other'},
+  {tr:'nunca',en:'никогда',category:'other'},
+  {tr:'siempre',en:'всегда',category:'other'},
+  {tr:'a veces',en:'иногда',category:'other'},
+  {tr:'a menudo',en:'часто',category:'other'},
+  {tr:'usualmente',en:'обычно',category:'other'},
+  {tr:'otra vez',en:'снова',category:'other'},
+  {tr:'aquí',en:'здесь',category:'other'},
+  {tr:'allí',en:'там',category:'other'},
+  {tr:'muy',en:'очень',category:'other'},
+  {tr:'también',en:'тоже / также',category:'other'},
+  {tr:'solo',en:'только',category:'other'},
+  {tr:'todavía',en:'всё ещё',category:'other'},
+  {tr:'ya',en:'уже',category:'other'},
+  {tr:'pronto',en:'скоро',category:'other'},
+  {tr:'tarde',en:'поздно',category:'other'},
+  {tr:'temprano',en:'рано',category:'other'},
+  {tr:'más',en:'больше',category:'other'},
+  {tr:'menos',en:'меньше',category:'other'},
+  {tr:'mucho',en:'много',category:'other'},
+  {tr:'muchos',en:'много (счётных)',category:'other'},
+  {tr:'pocos',en:'мало',category:'other'},
+  {tr:'suficiente',en:'достаточно',category:'other'},
+  {tr:'dinero',en:'деньги',category:'other'},
+  {tr:'precio',en:'цена',category:'other'},
+  {tr:'problema',en:'проблема',category:'other'},
+  {tr:'idea',en:'идея',category:'other'},
+  {tr:'palabra',en:'слово',category:'other'},
+  {tr:'libro',en:'книга',category:'other'},
+  {tr:'periódico',en:'газета',category:'other'},
+  {tr:'carta',en:'письмо',category:'other'},
+  {tr:'teléfono',en:'телефон',category:'other'},
+  {tr:'ordenador',en:'компьютер',category:'other'},
+  {tr:'internet',en:'интернет',category:'other'},
+  {tr:'juego',en:'игра',category:'other'},
+  {tr:'música',en:'музыка',category:'other'},
+  {tr:'película',en:'фильм',category:'other'},
+  {tr:'foto',en:'картина / фото',category:'other'},
+  {tr:'nombre',en:'имя',category:'other'},
+  {tr:'país',en:'страна',category:'other'},
+  {tr:'mundo',en:'мир',category:'other'},
+  {tr:'idioma',en:'язык',category:'other'},
+  {tr:'historia',en:'история / рассказ',category:'other'},
+  {tr:'noticias',en:'новости',category:'other'},
+  {tr:'trabajo',en:'работа',category:'other'},
+  {tr:'empresa',en:'компания',category:'other'},
+  {tr:'pregunta',en:'вопрос',category:'other'},
+  {tr:'respuesta',en:'ответ',category:'other'},
+  {tr:'verdad',en:'правда',category:'other'},
+  {tr:'mentira',en:'ложь',category:'other'},
+  {tr:'sueño',en:'мечта / сон',category:'other'},
+  {tr:'vida',en:'жизнь',category:'other'},
+  {tr:'muerte',en:'смерть',category:'other'},
+  {tr:'amigo',en:'друг',category:'other'},
+  {tr:'enemigo',en:'враг',category:'other'},
+  {tr:'amor',en:'любовь',category:'other'},
+  {tr:'felicidad',en:'счастье',category:'other'},
+  {tr:'suerte',en:'удача',category:'other'},
+  {tr:'peligro',en:'опасность',category:'other'},
+  {tr:'éxito',en:'успех',category:'other'},
+  {tr:'error',en:'ошибка',category:'other'},
+  {tr:'plan',en:'план',category:'other'},
+  {tr:'equipo',en:'команда',category:'other'},
+  {tr:'deporte',en:'спорт',category:'other'},
+  {tr:'salud',en:'здоровье',category:'other'},
+  {tr:'medicina',en:'лекарство',category:'other'},
+  {tr:'guerra',en:'война',category:'other'},
+  {tr:'paz',en:'мир',category:'other'},
+  {tr:'vacaciones',en:'праздник / отпуск',category:'other'},
+  {tr:'regalo',en:'подарок',category:'other'},
+  {tr:'fiesta',en:'вечеринка',category:'other'},
+  {tr:'viaje',en:'поездка',category:'other'},
+  {tr:'mapa',en:'карта',category:'other'},
+  {tr:'fotografía',en:'фотография',category:'other'},
+  {tr:'llave',en:'ключ',category:'other'},
+  {tr:'edad',en:'возраст',category:'other'},
+  {tr:'dirección',en:'адрес',category:'other'},
+  {tr:'número',en:'номер / число',category:'other'},
+  {tr:'color',en:'цвет',category:'other'},
+  {tr:'tamaño',en:'размер',category:'other'},
+  {tr:'peso',en:'вес',category:'other'},
+  {tr:'velocidad',en:'скорость',category:'other'},
+  {tr:'temperatura',en:'температура',category:'other'},
+  {tr:'tiempo',en:'погода',category:'other'},
+  {tr:'persona',en:'человек',category:'other'},
+  {tr:'hombre',en:'мужчина',category:'other'},
+  {tr:'mujer',en:'женщина',category:'other'},
+  {tr:'cosa',en:'вещь',category:'other'},
+  {tr:'parte',en:'часть',category:'other'},
+  {tr:'lugar',en:'место',category:'other'},
+  {tr:'tiempo',en:'время',category:'other'},
+  {tr:'casa',en:'дом',category:'other'},
+  {tr:'puerta',en:'дверь',category:'other'},
+  {tr:'ventana',en:'окно',category:'other'},
+  {tr:'mesa',en:'стол',category:'other'},
+  {tr:'silla',en:'стул',category:'other'},
+  {tr:'coche',en:'машина',category:'other'},
+  {tr:'calle',en:'улица',category:'other'},
+  {tr:'ciudad',en:'город',category:'other'},
+  {tr:'país',en:'страна',category:'other'},
+  {tr:'mundo',en:'мир',category:'other'},
+  {tr:'año',en:'год',category:'other'},
+  {tr:'día',en:'день',category:'other'},
+  {tr:'semana',en:'неделя',category:'other'},
+  {tr:'mes',en:'месяц',category:'other'},
+  {tr:'hora',en:'час',category:'other'},
+  {tr:'minuto',en:'минута',category:'other'},
+  {tr:'segundo',en:'секунда',category:'other'},
+  {tr:'noche',en:'ночь',category:'other'},
+  {tr:'mañana',en:'утро',category:'other'},
+  {tr:'tarde',en:'день (после полудня)',category:'other'},
+  {tr:'hoy',en:'сегодня',category:'other'},
+  {tr:'ayer',en:'вчера',category:'other'},
+  {tr:'mañana',en:'завтра',category:'other'},
+  {tr:'ahora',en:'сейчас',category:'other'},
+  {tr:'después',en:'потом',category:'other'},
+  {tr:'antes',en:'раньше',category:'other'},
+  {tr:'siempre',en:'всегда',category:'other'},
+  {tr:'nunca',en:'никогда',category:'other'},
+  {tr:'bien',en:'хорошо',category:'other'},
+  {tr:'mal',en:'плохо',category:'other'},
+  {tr:'grande',en:'большой',category:'other'},
+  {tr:'pequeño',en:'маленький',category:'other'},
+  {tr:'mucho',en:'много',category:'other'},
+  {tr:'poco',en:'мало',category:'other'},
+  {tr:'persona',en:'человек',category:'other'},
+  {tr:'hombre',en:'мужчина',category:'other'},
+  {tr:'mujer',en:'женщина',category:'other'},
+  {tr:'cosa',en:'вещь',category:'other'},
+  {tr:'parte',en:'часть',category:'other'},
+  {tr:'lugar',en:'место',category:'other'},
+  {tr:'bien',en:'хорошо',category:'other'},
+  {tr:'mal',en:'плохо',category:'other'},
+  {tr:'así',en:'так',category:'other'},
+  {tr:'entonces',en:'тогда',category:'other'},
+  {tr:'después',en:'потом',category:'other'},
+  {tr:'antes',en:'раньше',category:'other'},
+  {tr:'todo',en:'всё',category:'other'},
+  {tr:'nada',en:'ничего',category:'other'},
+  {tr:'algo',en:'что-то',category:'other'},
+  {tr:'alguien',en:'кто-то',category:'other'},
+  {tr:'nadie',en:'никто',category:'other'},
+  {tr:'cada',en:'каждый',category:'other'},
+  {tr:'otro',en:'другой',category:'other'},
+  {tr:'mismo',en:'тот же',category:'other'},
+  {tr:'último',en:'последний',category:'other'},
+  {tr:'mejor',en:'лучше',category:'other'},
+  {tr:'peor',en:'хуже',category:'other'},
+  {tr:'poco',en:'мало',category:'other'},
+  {tr:'segundo',en:'секунда',category:'other'},
+  {tr:'experiencia',en:'опыт',category:'other'},
+  {tr:'información',en:'информация',category:'other'},
+  {tr:'conocimiento',en:'знание',category:'other'},
+  {tr:'poder',en:'сила / власть',category:'other'},
+  {tr:'cambio',en:'изменение',category:'other'},
+  {tr:'desarrollo',en:'развитие',category:'other'},
+  {tr:'sistema',en:'система',category:'other'},
+  {tr:'forma',en:'форма',category:'other'},
+  {tr:'manera',en:'способ',category:'other'},
+  {tr:'razón',en:'причина',category:'other'},
+  {tr:'caso',en:'случай',category:'other'},
+  {tr:'momento',en:'момент',category:'other'},
+  {tr:'vez',en:'раз',category:'other'},
+  {tr:'voz',en:'голос',category:'other'},
+  {tr:'cuerpo',en:'тело',category:'other'},
+  {tr:'alma',en:'душа',category:'other'},
+  {tr:'mente',en:'ум',category:'other'},
+  {tr:'corazón',en:'сердце',category:'other'},
+  {tr:'amor',en:'любовь',category:'other'},
+  {tr:'odio',en:'ненависть',category:'other'},
+  {tr:'miedo',en:'страх',category:'other'},
+  {tr:'esperanza',en:'надежда',category:'other'},
+  {tr:'fe',en:'вера',category:'other'},
+  {tr:'entendimiento',en:'разум',category:'other'},
+  {tr:'memoria',en:'память',category:'other'},
+  {tr:'imagen',en:'образ',category:'other'},
+  {tr:'sonido',en:'звук',category:'other'},
+  {tr:'luz',en:'свет',category:'other'},
+  {tr:'sombra',en:'тень',category:'other'},
+  {tr:'ruido',en:'шум',category:'other'},
+  {tr:'silencio',en:'тишина',category:'other'},
+  {tr:'espacio',en:'пространство',category:'other'},
+  {tr:'tiempo',en:'время',category:'other'},
+  {tr:'principio',en:'начало',category:'other'},
+  {tr:'fin',en:'конец',category:'other'},
+  {tr:'medio',en:'середина',category:'other'},
+  {tr:'centro',en:'центр',category:'other'},
+  {tr:'frente',en:'перед',category:'other'},
+  {tr:'lado',en:'сторона',category:'other'},
+  {tr:'arriba',en:'верх',category:'other'},
+  {tr:'abajo',en:'низ',category:'other'},
+  {tr:'dentro',en:'внутри',category:'other'},
+  {tr:'fuera',en:'снаружи',category:'other'},
+  {tr:'cerca',en:'близко',category:'other'},
+  {tr:'lejos',en:'далеко',category:'other'},
+  {tr:'delante',en:'впереди',category:'other'},
+  {tr:'detrás',en:'сзади',category:'other'},
+  {tr:'izquierda',en:'лево',category:'other'},
+  {tr:'derecha',en:'право',category:'other'},
+  {tr:'norte',en:'север',category:'other'},
+  {tr:'sur',en:'юг',category:'other'},
+  {tr:'este',en:'восток',category:'other'},
+  {tr:'oeste',en:'запад',category:'other'},
+  {tr:'camino',en:'путь',category:'other'},
+  {tr:'sentido',en:'смысл',category:'other'},
+  {tr:'valor',en:'ценность',category:'other'},
+  {tr:'costo',en:'стоимость',category:'other'},
+  {tr:'gasto',en:'расход',category:'other'},
+  {tr:'ingreso',en:'доход',category:'other'},
+  {tr:'beneficio',en:'выгода',category:'other'},
+  {tr:'pérdida',en:'потеря',category:'other'},
+  {tr:'ganancia',en:'прибыль',category:'other'},
+  {tr:'resultado',en:'результат',category:'other'},
+  {tr:'efecto',en:'эффект',category:'other'},
+  {tr:'origen',en:'происхождение',category:'other'},
+  {tr:'consecuencia',en:'последствие',category:'other'},
+  {tr:'condición',en:'условие',category:'other'},
+  {tr:'situación',en:'ситуация',category:'other'},
+  {tr:'posición',en:'позиция',category:'other'},
+  {tr:'nivel',en:'уровень',category:'other'},
+  {tr:'grado',en:'степень',category:'other'},
+  {tr:'tipo',en:'тип',category:'other'},
+  {tr:'clase',en:'класс',category:'other'},
+  {tr:'grupo',en:'группа',category:'other'},
+  {tr:'serie',en:'серия',category:'other'},
+  {tr:'cantidad',en:'количество',category:'other'},
+  {tr:'calidad',en:'качество',category:'other'},
+  {tr:'capacidad',en:'способность',category:'other'},
+  {tr:'posibilidad',en:'возможность',category:'other'},
+  {tr:'necesidad',en:'необходимость',category:'other'},
+  {tr:'obligación',en:'обязанность',category:'other'},
+  {tr:'derecho',en:'право',category:'other'},
+  {tr:'deber',en:'долг',category:'other'},
+  {tr:'responsabilidad',en:'ответственность',category:'other'},
+  {tr:'libertad',en:'свобода',category:'other'},
+  {tr:'justicia',en:'справедливость',category:'other'},
+  {tr:'ley',en:'закон',category:'other'},
+  {tr:'regla',en:'правило',category:'other'},
+  {tr:'norma',en:'норма',category:'other'},
+  {tr:'orden',en:'порядок',category:'other'},
+  {tr:'caos',en:'хаос',category:'other'},
+  {tr:'ficción',en:'вымысел',category:'other'},
+  {tr:'arte',en:'искусство',category:'other'},
+  {tr:'ciencia',en:'наука',category:'other'},
+  {tr:'tecnología',en:'технология',category:'other'},
+  {tr:'cultura',en:'культура',category:'other'},
+  {tr:'tradición',en:'традиция',category:'other'},
+  {tr:'costumbre',en:'обычай',category:'other'},
+  {tr:'religión',en:'религия',category:'other'},
+  {tr:'política',en:'политика',category:'other'},
+  {tr:'economía',en:'экономика',category:'other'},
+  {tr:'sociedad',en:'общество',category:'other'},
+  {tr:'gobierno',en:'правительство',category:'other'},
+  {tr:'pueblo',en:'народ',category:'other'},
+  {tr:'nación',en:'нация',category:'other'},
+  {tr:'región',en:'регион',category:'other'},
+  {tr:'zona',en:'зона',category:'other'},
+  {tr:'área',en:'область',category:'other'},
+  {tr:'territorio',en:'территория',category:'other'},
+  {tr:'frontera',en:'граница',category:'other'},
+  {tr:'capital',en:'столица',category:'other'},
+  {tr:'provincia',en:'провинция',category:'other'},
+  {tr:'comunidad',en:'сообщество',category:'other'},
+  {tr:'novio',en:'парень',category:'other'},
+  {tr:'novia',en:'девушка',category:'other'},
+  {tr:'vecino',en:'сосед',category:'other'},
+  {tr:'colega',en:'коллега',category:'other'},
+  {tr:'jefe',en:'начальник',category:'other'},
+  {tr:'empleado',en:'сотрудник',category:'other'},
+  {tr:'cliente',en:'клиент',category:'other'},
+  {tr:'vendedor',en:'продавец',category:'other'},
+  {tr:'comprador',en:'покупатель',category:'other'},
+  {tr:'visitante',en:'посетитель',category:'other'},
+  {tr:'invitado',en:'гость',category:'other'},
+  {tr:'anfitrión',en:'хозяин',category:'other'},
+  {tr:'huésped',en:'гость',category:'other'},
+  {tr:'extraño',en:'незнакомец',category:'other'},
+  {tr:'conocido',en:'знакомый',category:'other'},
+  {tr:'compañero',en:'товарищ',category:'other'},
+  {tr:'asistente',en:'помощник',category:'other'},
+  {tr:'ayudante',en:'помощник',category:'other'},
+  {tr:'líder',en:'лидер',category:'other'},
+  {tr:'seguidor',en:'последователь',category:'other'},
+  {tr:'maestro',en:'учитель',category:'other'},
+  {tr:'alumno',en:'ученик',category:'other'},
+  {tr:'estudiante',en:'студент',category:'other'},
+  {tr:'catedrático',en:'профессор',category:'other'},
+  {tr:'paciente',en:'пациент',category:'other'},
+  {tr:'adulto',en:'взрослый',category:'other'},
+  {tr:'anciano',en:'пожилой',category:'other'},
+  {tr:'adolescente',en:'подросток',category:'other'},
+];
+
+try { (function seedDataES1() {
+  if (_lsAvailable && localStorage.getItem(SEED_KEY_ES1)) return;
+  const existing = loadWords();
+  const existingTr = new Set(existing.map(w => w.tr.toLowerCase()));
+  const now = Date.now();
+  const toAdd = SEED_WORDS_ES1
+    .filter(w => !existingTr.has(w.tr.toLowerCase()))
+    .map((w, i) => ({
+      id: 'es1_' + i,
+      tr: w.tr, en: w.en, notes: '',
+      category: w.category,
+      addedAt: now - (SEED_WORDS_ES1.length - i) * 1000,
+      correct: 0, incorrect: 0
+    }));
+  if (toAdd.length > 0) saveWords([...existing, ...toAdd]);
+  if (_lsAvailable) localStorage.setItem(SEED_KEY_ES1, '1');
+})(); } catch(e) { console.warn('seedES1 error', e); }
+
+// ── Boot ───────────────────────────────────────────────
+populateCatFilter();
+renderWordList();
+initQuiz();
+if (typeof AdsModule !== 'undefined' && AdsModule.initAds) {
+  AdsModule.initAds().catch(() => {});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+{
+  "name": "turkish-flashcards",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "copy-web": "node -e \"const fs=require('fs');['index.html','spanish.html','english.html','manifest.json'].forEach(f=>{try{fs.copyFileSync(f,'www/'+f)}catch(e){}});if(fs.existsSync('icon.png'))fs.copyFileSync('icon.png','www/icon.png');console.log('Copied to www/');\"",
+    "build-ads": "npx esbuild ads-init.js --bundle --format=iife --global-name=AdsModule --outfile=www/ads-bundle.js",
+    "sync": "npm run build-ads && npm run copy-web && npx cap sync"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pifagortradebtc/turkish-flashcards.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/pifagortradebtc/turkish-flashcards/issues"
+  },
+  "homepage": "https://github.com/pifagortradebtc/turkish-flashcards#readme",
+  "dependencies": {
+    "@capacitor-community/admob": "^8.0.0",
+    "@capacitor/cli": "^8.2.0",
+    "@capacitor/core": "^8.2.0",
+    "@capacitor/ios": "^8.2.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.27.4"
+  }
+}
