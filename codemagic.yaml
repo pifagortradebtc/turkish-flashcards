@@ -8,7 +8,7 @@ workflows:
     instance_type: mac_mini_m2
 
     environment:
-      node: v20
+      node: latest
       vars:
         XCODE_PROJECT: "App.xcodeproj"
         XCODE_SCHEME: "App"
