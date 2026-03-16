@@ -50,7 +50,7 @@
 	<key>GADIsAdManagerApp</key>
 	<true/>
 	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-4869538689485009~9338689847</string>
+	<string>ca-app-pub-4069538609485009~9338689847</string>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>
@@ -59,6 +59,6 @@
 		</dict>
 	</array>
 	<key>NSUserTrackingUsageDescription</key>
-	<string>Этот идентификатор используется для показа персонализированной рекламы.</string>
+	<string>Используется для показа персонализированной рекламы.</string>
 </dict>
 </plist>

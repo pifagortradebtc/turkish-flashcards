@@ -761,7 +761,7 @@ var AdsModule = (() => {
   });
 
   // ads-init.js
-  var BANNER_AD_ID = "ca-app-pub-4869538689485009/5399444839";
+  var BANNER_AD_ID = "ca-app-pub-4069538609485009/5399444039";
   var INTERSTITIAL_AD_ID = "ca-app-pub-3940256099942544/1033173712";
   var IS_TESTING = true;
   var interstitialReady = false;

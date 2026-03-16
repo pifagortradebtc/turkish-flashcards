@@ -7,9 +7,9 @@ import { Capacitor } from '@capacitor/core';
 import { AdMob, BannerAdPosition, BannerAdSize } from '@capacitor-community/admob';
 
 // ═══ НАСТРОЙКА: ID из AdMob Console ═══
-const BANNER_AD_ID = 'ca-app-pub-4869538689485009/5399444839';
+const BANNER_AD_ID = 'ca-app-pub-4069538609485009/5399444039';
 const INTERSTITIAL_AD_ID = 'ca-app-pub-3940256099942544/1033173712';  // TODO: создайте межстраничную и замените
-const IS_TESTING = true;  // true при разработке; false при публикации в App Store
+const IS_TESTING = true;  // true при разработке; false после публикации в App Store
 
 let interstitialReady = false;
 let quizSessionCount = 0;
