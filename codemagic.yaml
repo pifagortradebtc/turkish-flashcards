@@ -39,10 +39,12 @@ workflows:
       - ios/App/build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
 
-    # Раскомментируйте после настройки App Store Connect API key в Codemagic:
-    # integrations:
-    #   app_store_connect: App Store Connect API key
-    # publishing:
-    #   app_store_connect:
-    #     auth: integration
-    #     submit_to_testflight: true
+    # Публикация в App Store Connect:
+    # 1. Подключить Developer Portal в Codemagic (Teams → Integrations)
+    # 2. Указать имя интеграции ниже (как назвали при создании)
+    integrations:
+      app_store_connect: Codemagic
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true  # IPA загрузится в TestFlight

@@ -2,12 +2,20 @@
 
 ---
 
-## ✅ Шаг 1: Transporter (загрузка IPA)
+## ✅ Шаг 1: Загрузка IPA в App Store Connect
 
-1. Microsoft Store → установите **Transporter**
-2. Запустите Transporter → войдите с Apple ID
-3. Перетащите **App.ipa** (из Downloads) в окно
-4. **Deliver** → дождитесь завершения
+**Вариант A — через Codemagic (рекомендуется, без Transporter):**
+
+1. App Store Connect → Users and Access → Keys → создать **API Key** (роль App Manager)
+2. Codemagic → Teams → Integrations → **App Store Connect** → добавить ключ
+3. В `codemagic.yaml` раскомментировать блок `integrations` и `publishing`
+4. Запустить сборку — IPA автоматически загрузится в TestFlight
+
+**Вариант B — Transporter (если Codemagic недоступен):**
+
+- Transporter в Microsoft Store **недоступен** в регионе RU/TR (ошибка «Продукт не найден»)
+- iTMSTransporter (установщик Apple) — только **консоль**, для Windows нужен AppStoreInfo.plist из Xcode
+- **Transporter GUI** (третья сторона): https://transportergui.com — бесплатный GUI для iTMSTransporter
 
 ---
 
