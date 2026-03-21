@@ -12,45 +12,29 @@
 
 ---
 
-## 📋 Ваши действия
+## 📋 Ваши действия (≈5 мин)
 
-### 1. Опубликовать изменения на GitHub
+### Быстрый способ: откройте `app-store-connect-helper.html`
 
-```bash
-git add .
-git commit -m "Fix App Store: support page, branded icons"
-git push origin main
-```
+Файл откроется в браузере. Кнопки «Копировать» — для Support URL и App Review Notes. Скопируйте и вставьте в App Store Connect.
 
-После push подождите 1–2 минуты — GitHub Pages обновит страницу поддержки.
+### 1. App Store Connect — Support URL
 
-### 2. App Store Connect — обновить Support URL
+App Information → **Support URL** → вставьте:
+`https://pifagortradebtc.github.io/turkish-flashcards/support.html`
 
-1. App Store Connect → Ваше приложение → **App Information**
-2. **Support URL** замените на:  
-   `https://pifagortradebtc.github.io/turkish-flashcards/support.html`
+### 2. App Review Information (Notes)
 
-### 3. App Review Information (Notes)
+Проверка приложения → **Примечания** → вставьте текст из `app-store-connect-helper.html` (кнопка «Копировать»).
 
-App Store Connect → **Проверка приложения** → **Примечания**
+### 3. Screen Recording
 
-Скопируйте текст из `APP_REVIEW_NOTES.md` (английский вариант).
-
-### 4. Screen Recording
-
-Снимите видео 1–2 минуты на iPhone (Настройки → Пункт управления → Запись экрана):
-- Запуск приложения
-- Добавление слова
-- Режим «Учу»
-- Режим «Проверка»
-- Переключение языков
+Снимите 1–2 минуты на iPhone (Запись экрана в Пункте управления):
+- Запуск, добавление слова, режимы «Учу» и «Проверка», переключение языков
 
 Прикрепите в App Store Connect → Проверка приложения → **Вложение**.
 
-### 5. Собрать новый IPA и загрузить
+### 4. IPA и Resubmit
 
-Через Codemagic или Xcode → Product → Archive → Distribute App.
-
-### 6. Resubmit
-
-App Store Connect → выберите новый билд → **Повторно отправить на проверку**.
+- Codemagic: сборка могла уже запуститься после push. Проверьте [Codemagic](https://codemagic.io).
+- Выберите новый билд в App Store Connect → **Повторно отправить на проверку**.

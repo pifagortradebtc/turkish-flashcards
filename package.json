@@ -8,6 +8,7 @@
     "copy-web": "node -e \"const fs=require('fs');['index.html','spanish.html','english.html','manifest.json'].forEach(f=>{try{fs.copyFileSync(f,'www/'+f)}catch(e){}});const icon=fs.existsSync('icon.png')?'icon.png':fs.existsSync('assets/icon.png')?'assets/icon.png':null;if(icon)fs.copyFileSync(icon,'www/icon.png');console.log('Copied to www/');\"",
     "build-ads": "npx esbuild ads-init.js --bundle --format=iife --global-name=AdsModule --outfile=www/ads-bundle.js",
     "generate-icons": "npx @capacitor/assets generate --ios",
+    "trigger-build": "node trigger-codemagic.js",
     "sync": "npm run build-ads && npm run copy-web && npx cap sync"
   },
   "repository": {
