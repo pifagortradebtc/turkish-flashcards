@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "copy-web": "node -e \"const fs=require('fs');['index.html','spanish.html','english.html','manifest.json'].forEach(f=>{try{fs.copyFileSync(f,'www/'+f)}catch(e){}});if(fs.existsSync('icon.png'))fs.copyFileSync('icon.png','www/icon.png');console.log('Copied to www/');\"",
+    "copy-web": "node -e \"const fs=require('fs');['index.html','spanish.html','english.html','manifest.json'].forEach(f=>{try{fs.copyFileSync(f,'www/'+f)}catch(e){}});const icon=fs.existsSync('icon.png')?'icon.png':fs.existsSync('assets/icon.png')?'assets/icon.png':null;if(icon)fs.copyFileSync(icon,'www/icon.png');console.log('Copied to www/');\"",
     "build-ads": "npx esbuild ads-init.js --bundle --format=iife --global-name=AdsModule --outfile=www/ads-bundle.js",
+    "generate-icons": "npx @capacitor/assets generate --ios",
     "sync": "npm run build-ads && npm run copy-web && npx cap sync"
   },
   "repository": {
@@ -28,6 +29,7 @@
     "@capacitor/ios": "^8.2.0"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "esbuild": "^0.27.4"
   }
 }

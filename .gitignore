@@ -3,3 +3,8 @@ node_modules/
 *.log
 *.ipa
 *.xcarchive
+request.csr
+private.key
+*.p12
+*.cer
+/icon.png
